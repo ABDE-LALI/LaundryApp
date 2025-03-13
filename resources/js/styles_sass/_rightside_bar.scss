@@ -1,0 +1,120 @@
+.right_sidebar {
+    // min-width: 350px;
+    background-color: #ffffff;
+    overflow-y: auto;
+    scrollbar-width: none;
+    height: 100vh;
+    .panier {
+        margin: 30px 40px;
+        .field{
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items:center;
+            // align-content: center;
+            border: 1px solid #aaa ;
+            border-radius: 12px;
+            padding: 0px 0px 0px 10px;
+            margin: 10px 0px;
+            .amount{
+                font-weight: bold;
+                padding:10px 0px
+            }
+            .title{
+                position: absolute;
+                top: -10px;
+                color:#aaa;
+                background-color: #fff;
+            }
+            
+            .cashTax{
+                display: inline-block;
+                background-color: #F2F2F2;
+                padding: 10px 15px;
+                border-radius: 12px; 
+                // margin-top: -9px;
+                // margin-right: -10px ;    
+                // border: solid 0.01px rgba(0, 0, 0, .4);        
+            }
+        }
+        .total{ 
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-top: 20px;
+            height: 150px;
+        }
+        .p-pro {
+            display: flex;
+            padding: 20px 0px;
+            border-bottom: dashed rgba(0, 0, 0, .3) 0.5px;
+            img {
+                width: 80px;
+                height: 70px;
+                margin-right: 20px;
+                border-radius: 16px;
+            }
+            .desc{
+                display: flex;
+                flex-direction: column;
+                .qte-pric{
+                    display: flex;
+                    margin-top: 10px;
+                    align-items:end;
+                    .qte{
+                        flex: 1;
+                        display: flex;
+                        .sign{
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 24px;
+                            height: 24px;
+                            font-weight: bold;
+                            background-color: #FCB427;
+                            color: #ffffff;
+                            border-radius: 6px;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+    .paymentmeth{
+        display: flex;
+        justify-content: space-between;
+        .meth{
+            border-radius: 16px;
+            padding: 10px;
+            background-color: #F2F2F2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 83.33px;
+            height: 67px;
+            .payPic{
+                width: 24px;
+                height: 24px;
+                margin-bottom: 4px;
+            }
+            .paytitle{
+                font-size: medium;
+                font-weight: bold;
+            }
+        }
+        .activ{
+            border: solid black 2px;
+            background-color: #fff;
+        }
+        .valid{
+            display: flex;
+            justify-content: center;
+            background-color: #FCB427;
+            color: #ffffff;
+            font-size: medium;
+            font-weight: bold;
+        }
+    }
+
+}

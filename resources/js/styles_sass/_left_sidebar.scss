@@ -1,0 +1,57 @@
+
+.Left_Sidebar {
+    min-height: 100vh;
+    background-color: #ffffff;
+    padding: 30px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    font-size: x-small;
+    font-weight: 500;
+    overflow-y: scroll;
+    scrollbar-width: none;
+
+    .logo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .menu {
+        margin-top: 55px;
+        flex: 1;
+
+        .sec {
+            width: 80px;
+            height: 72px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 10px;
+            border-radius: 20px;
+
+            svg {
+                width: 18px;
+                height: 20px;
+                margin-bottom: 4px;
+            }
+        }
+
+        .active {
+            background-color: #FCB427;
+
+            svg,
+            span {
+                filter: invert(100%);
+            }
+        }
+
+    }
+
+}
+
+
+
+
+

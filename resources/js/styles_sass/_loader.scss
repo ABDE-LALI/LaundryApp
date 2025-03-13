@@ -1,0 +1,47 @@
+.loader {
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    background-color: #efefef;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    .circle {
+        position: relative;
+        img {
+            width: 100px;
+            height: 100px;
+        }
+        .v1 {
+            top:0;
+            left: 0;
+            position: absolute;
+            z-index: 1000;
+            @keyframes rotat {
+                0%{
+                    transform: rotate(0deg);
+                }
+                100%{
+                    transform: rotate(360deg);
+                }
+            }
+            animation: rotat 8s linear infinite;
+        }
+    }
+    .dots{
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        .dot{
+            padding: 3px;
+            background-color: black;
+            margin-right: 1px;
+            border-radius: 10px;
+        }
+    }
+
+}

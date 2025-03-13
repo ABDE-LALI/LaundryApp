@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
@@ -10,20 +9,13 @@ class Article extends Model
         'name',
         'image',
         'description',
-        // 'p_wash',
-        // 'p_dry',
-        // 'p_wash_iron',
-        // 'p_dry_iron',
-        // 'p_iron',
-        // 'p_paint_black',
-        // 'p_paint_color',
     ];
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'ArticleService')->withPivot('price');
+        return $this->belongsToMany(Service::class, 'article_service')->withPivot('price');
     }
     public function bills()
     {
-        return $this->belongsToMany('App\Models\bill');
+        return $this->belongsToMany(Bill::class, 'orders', 'article_id', 'bill_id');
     }
 }

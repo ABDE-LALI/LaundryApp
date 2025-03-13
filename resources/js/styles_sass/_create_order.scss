@@ -1,0 +1,34 @@
+.maindashboard {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .sectiontitle {
+        color: black;
+    }
+
+    .create {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            .operations{
+                display: flex;
+                .keyboard{
+                    .hg-rows{
+                        .hg-row{
+                            display: flex;
+                            justify-content: space-between;
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+
+}
