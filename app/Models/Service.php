@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use PHPUnit\Framework\Attributes\Ticket;
 
 class Service extends Model
 {
@@ -15,7 +16,7 @@ class Service extends Model
     // Many-to-many relationship with Bill
     public function bills()
     {
-        return $this->belongsToMany(Bill::class);
+        return $this->belongsToMany(Ticket::class);
     }
 
     // One-to-many relationship (Service belongs to one Article)

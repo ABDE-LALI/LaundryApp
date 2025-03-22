@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('image');
+            $table->enum('gender', ['female', 'male', 'home'])->default('male');
             $table->string('description')->nullable();
             // $table->integer('p_wash'); 
             // $table->integer('p_dry')->nullable();

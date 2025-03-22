@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Bill extends Model
+class Ticket extends Model
 {
     protected $fillable = [
         'total_price',
@@ -17,7 +17,7 @@ class Bill extends Model
     // Many-to-many relationship with Article
     public function orders()
     {
-        return $this->hasMany(Orders::class, 'ticket_id');
+        return $this->hasMany(Order::class, 'ticket_id');
     }
     public function articles()
     {

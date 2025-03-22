@@ -2,44 +2,119 @@
 
 namespace Database\Seeders;
 
+use App\Models\Article;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class ArticleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        $articles = [
-            [
-                'name' => 'Cotton T-Shirt',
-                'image' => 'images/tshirt.jpg',
-                'description' => 'Comfortable cotton t-shirt suitable for everyday wear',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Denim Jeans',
-                'image' => 'images/jeans.jpg',
-                'description' => 'Classic blue denim jeans with a modern fit',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Wool Sweater',
-                'image' => 'images/sweater.jpg',
-                'description' => 'Warm wool sweater perfect for cold weather',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
+        // Male articles (32 after removing duplicate selham)
+        $maleArticles = array_unique([
+            'selham',
+            'pijama',
+            'espadrille',
+            'jabador',
+            'cravate',
+            'pull',
+            'cagoul',
+            'cashcoule',
+            'blouse-infirmier',
+            'casket',
+            'jacket-bomber',
+            'jacket',
+            'jacket-cuir',
+            'monto',
+            'debardeur',
+            'servit',
+            'serwal-toub',
+            'serwal-atwal',
+            'short',
+            'short-cargo',
+            'jellaba',
+            'foukiya',
+            'gandora',
+            'jilet-formel',
+            'chemise',
+            'veste',
+            'costume',
+            't-shirt',
+            'jacket-jeans',
+            'pantalon-cargo',
+            'pantalon-jeans',
+            'hoodie',
+        ]);
+
+        // Female articles (9 new articles)
+        $femaleArticles = [
+            'jellaba-f',
+            'chale',
+            'takchita',
+            'robe',
+            'folard',
+            'jupe-court',
+            'jupe-long',
+            'kaftan',
+            'ensemble',
+        ];
+        $homeArticles = [
+            'tlamet',
+            'sac-camp',
+            'sac-dos',
+            'sac-voyage',
+            'sac-main',
+            'serviette-main',
+            'serviette-bain',
+            'tapis-normal',
+            'housse-coussin',
+            'sellaya',
+            'nappe',
+            'rideau',
+            'couverture',
+            'couette',
+            'couverture-enfant',
+            'drap',
+            'orreiller',
         ];
 
-        // Insert the sample data into the articles table
-        DB::table('articles')->insert($articles);
+        // Prepare male articles data
+        $maleArticlesData = array_map(function ($name) {
+            return [
+                'name' => $name,
+                'image' => 'images/' . $name . '.jpg',
+                'gender' => 'male',
+                'description' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }, $maleArticles);
+
+        // Prepare female articles data
+        $femaleArticlesData = array_map(function ($name) {
+            return [
+                'name' => $name,
+                'image' => 'images/' . $name . '.jpg',
+                'gender' => 'female',
+                'description' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }, $femaleArticles);
+        $homeArticlesData = array_map(function ($name) {
+            return [
+                'name' => $name,
+                'image' => 'images/' . $name . '.jpg',
+                'gender' => 'home',
+                'description' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }, $homeArticles);
+
+        // Combine both arrays
+        $allArticlesData = array_merge($maleArticlesData, $femaleArticlesData, $homeArticlesData);
+
+        // Bulk insert all articles
+        Article::insert($allArticlesData);
     }
 }

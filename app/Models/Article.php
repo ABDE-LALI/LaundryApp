@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use PHPUnit\Framework\Attributes\Ticket;
 
 class Article extends Model
 {
@@ -16,6 +17,6 @@ class Article extends Model
     }
     public function bills()
     {
-        return $this->belongsToMany(Bill::class, 'orders', 'article_id', 'bill_id');
+        return $this->belongsToMany(Ticket::class, 'orders', 'article_id', 'bill_id');
     }
 }

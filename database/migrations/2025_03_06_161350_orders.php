@@ -19,9 +19,11 @@ return new class extends Migration
             $table->integer('quantity');
             $table->integer('price');
             $table->timestamps();
-            $table->foreign('ticket_id')->references('id')->on('bills')->onDelete('cascade');
+            $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
             $table->foreign('article_id')->references('id')->on('articles')->onDelete('cascade');
             $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
+            $table->string('brand')->nullable();
+            $table->string('color')->nullable();
         });
     }
 

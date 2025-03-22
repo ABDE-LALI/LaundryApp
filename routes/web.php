@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\TicketController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -19,7 +20,10 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/order-taking', [OrderController::class, 'index'])->name('serve.create');
+    //this route to store the ticket
+    Route::post('serve/ticket/store', [TicketController::class, 'storeTicket'])->name('serve.ticket.store');
+    //this route to store the orders
+    Route::post('/serve/store', [OrderController::class, 'store'])->name('serve.store');
     //this page contains the statistics
     Route::get('/serve/statistics', function () {
         return Inertia::render('Serve/Statistics');

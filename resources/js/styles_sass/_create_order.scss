@@ -1,34 +1,249 @@
-.maindashboard {
+// Define variables for colors and other reusable values
+$blue-500: #3b82f6;
+$blue-600: #2563eb;
+$blue-800: #1e40af;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$white: #fdfdfd;
+
+// Container styles
+.container {
+    position: relative;
     display: flex;
     flex-direction: column;
     flex: 1;
+    padding: 20px;
+    background-color: $white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
 
-    .sectiontitle {
-        color: black;
+// Title styles
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+// Form section styles
+.form-section {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    gap: 16px;
+}
+
+// Label styles
+.label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+}
+
+// Article grid styles
+.article-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); // 4 columns
+    gap: 5px;
+    margin-top: 4px;
+    max-height: calc(6 * (48px + 16px + 16px + 8px + 14px + 16px)); // 3 rows height
+    overflow-y: auto; // Enable vertical scrolling
+    padding: 4px; // Optional padding for better spacing
+    scrollbar-width: thin; // For Firefox
+    scrollbar-color: $blue-500 $white; // Custom scrollbar colors for Firefox
+
+    // Custom scrollbar for Webkit browsers (Chrome, Safari)
+    &::-webkit-scrollbar {
+        width: 8px;
     }
 
-    .create {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
+    &::-webkit-scrollbar-track {
+        background: $white;
+    }
 
-        .actions {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            .operations{
-                display: flex;
-                .keyboard{
-                    .hg-rows{
-                        .hg-row{
-                            display: flex;
-                            justify-content: space-between;
-                        }
-                    }
-                    
-                }
-            }
+    &::-webkit-scrollbar-thumb {
+        background-color: $blue-500;
+        border-radius: 4px;
+        border: 2px solid $white;
+    }
+}
+
+// Article card styles
+.article-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    // padding: 16px;
+    // background-color: $blue-500;
+    color: #000;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s, border 0.2s;
+    cursor: pointer;
+    // border: 2px solid transparent;
+
+    &:hover {
+        background-color: $gray-300;
+    }
+
+    &.article-card-selected {
+        background-color: $blue-600;
+        border: 1px solid $blue-800;
+    }
+
+    .article-image {
+        // width: 48px;
+        // height: 48px;
+        border-radius: 8px;
+
+        margin-bottom: 8px;
+        object-fit: cover;
+    }
+
+    .article-name {
+        font-size: 14px;
+        font-weight: 500;
+    }
+}
+
+// Color grid styles
+.color-grid {
+    display: flex;
+
+}
+
+// Color swatch styles
+.color-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid $gray-300;
+    transition: border 0.2s, box-shadow 0.2s;
+    cursor: pointerorder-list;
+
+    &:hover {
+        border: 2px solid $blue-500;
+    }
+
+    &.color-swatch-selected {
+        border: 2px solid $blue-800;
+        box-shadow: 0 0 0 2px $blue-600;
+    }
+
+    &.color-swatch-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+// Color info styles
+.color-info {
+    font-size: 14px;
+    color: $gray-600;
+    margin-top: 4px;
+}
+
+// Quantity input styles
+.quantity-input {
+    margin-top: 4px;
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid $gray-300;
+    border-radius: 4px;
+    box-sizing: border-box;
+
+    &:focus {
+        outline: none;
+        border-color: $blue-500;
+    }
+}
+
+// Keyboard container styles
+.keyboard-order {
+    border: solid black 1px;
+    position: absolute;
+    background-color: $white;
+    display: flex;
+    .keyboard-container{
+        flex: 0.5;
+    }
+.order-summary {
+    .order-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .order-list {
+        list-style-type: disc;
+        padding-left: 20px;
+        margin-top: 8px;
+
+        .order-item {
+            padding: 4px 0;
         }
     }
+}
+}
 
+.order-detail{
+    flex: 1;
+}
+
+// Add button styles
+.add-button {
+    width: 100%;
+    padding: 8px;
+    background-color: $blue-500;
+    color: $white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: $blue-600;
+    }
+
+    &:disabled {
+        background-color: $gray-400;
+        cursor: not-allowed;
+    }
+}
+
+.edit-button {
+    margin-right: 8px;
+    color: #3b82f6; /* Blue */
+    &:hover {
+        color: #1e40af;
+    }
+}
+
+.delete-button {
+    color: #ef4444; /* Red */
+    &:hover {
+        color: #b91c1c;
+    }
+}
+
+.cancel-button {
+    margin-left: 8px;
+    background-color: #6b7280; /* Gray */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.add-button {
+    background-color: #10b981; /* Green */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    &:disabled {
+        background-color: #d1d5db; /* Gray */
+    }
 }

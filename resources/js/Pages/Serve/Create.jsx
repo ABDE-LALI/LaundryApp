@@ -1,46 +1,49 @@
 import { RightSideBar } from "@/src/Fragments/RightSideBar";
 import Dashboard from "../Dashboard";
-import VirtualKeyboard from "@/src/Fragments/Components/VirtualKeyboard";
 import React, { useState, useRef } from 'react';
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
+import { stringify } from "postcss";
 
 export default function Create() {
-    const { articles } = usePage().props;
+    const { articles, services, ticket_id } = usePage().props;
     const [selectedArticle, setSelectedArticle] = useState('');
+    const [selectedService, setSelectedService] = useState('');
     const [quantity, setQuantity] = useState('');
+    const [brand, setBrand] = useState(''); // Initialize as empty string
     const [orderItems, setOrderItems] = useState([]);
     const [keyboardInput, setKeyboardInput] = useState('quantity');
     const [layout, setLayout] = useState('numeric');
-    const keyboardRef = useRef(null); // Add ref to control keyboard
+    const [selectedColor, setSelectedColor] = useState('');
+    const [showkeyorder, setShowKeyOrder] = useState(false);
+    const [editingIndex, setEditingIndex] = useState(null);
+    const keyboardRefQ = useRef(null);
+    const keyboardRefB = useRef(null);
 
     const keyboardLayout = {
-        numeric: [
-            '1 2 3',
-            '4 5 6',
-            '7 8 9',
-            '. 0 {bksp}'
-        ],
+        numeric: ['1 2 3', '4 5 6', '7 8 9', '0 {bksp}'],
         alphanumeric: [
             '1 2 3 4 5 6 7 8 9 0',
             'q w e r t y u i o p',
             'a s d f g h j k l',
             '{shift} z x c v b n m {bksp}',
-            '{space} {enter}'
+            '{space}',
         ],
         alphanumericShift: [
             '! @ # $ % ^ & * ( )',
             'Q W E R T Y U I O P',
             'A S D F G H J K L',
             '{shift} Z X C V B N M {bksp}',
-            '{space} {enter}'
-        ]
+            '{space}',
+        ],
     };
 
     const onKeyboardChange = (input) => {
         if (keyboardInput === 'quantity') {
             setQuantity(input);
+        } else if (keyboardInput === 'brand') {
+            setBrand(input);
         }
     };
 
@@ -49,119 +52,408 @@ export default function Create() {
             setLayout(layout === 'alphanumeric' ? 'alphanumericShift' : 'alphanumeric');
         }
         if (button === '{enter}') {
-            handleAddToOrder();
+            handleAddOrUpdateOrder();
         }
     };
 
-    const handleAddToOrder = () => {
-        if (selectedArticle && quantity) {
-            const selectedArticleObj = articles.find(a => a.id === parseInt(selectedArticle));
+    const handleAddOrUpdateOrder = () => {
+        if (selectedArticle && selectedService && quantity) {
+            const selectedArticleObj = articles.find((a) => a.id === parseInt(selectedArticle));
+            const selectedServiceObj = services.find((s) => s.id === parseInt(selectedService));
             if (!selectedArticleObj) return;
 
             const item = {
                 article: selectedArticleObj,
+                service: selectedServiceObj,
+                totalPrice: selectedArticleObj.price * parseFloat(quantity),
                 quantity: parseFloat(quantity),
+                brand: brand || 'No Brand entered',
+                color: selectedColor || 'No Color Selected',
             };
 
-            setOrderItems(prevItems => [...prevItems, item]);
-            // Reset everything
+            if (editingIndex !== null) {
+                setOrderItems((prevItems) => {
+                    const updatedItems = [...prevItems];
+                    updatedItems[editingIndex] = item;
+                    return updatedItems;
+                });
+                setEditingIndex(null);
+            } else {
+                setOrderItems((prevItems) => [...prevItems, item]);
+            }
+
+            // Reset form
             setSelectedArticle('');
+            setSelectedService('');
             setQuantity('');
+            setBrand(''); // Reset brand
+            setSelectedColor('');
             setKeyboardInput('quantity');
-            if (keyboardRef.current) {
-                keyboardRef.current.setInput(''); // Reset keyboard input
+            setShowKeyOrder(false);
+            if (keyboardRefQ.current && keyboardRefB.current) {
+                keyboardRefB.current.setInput('');
+                keyboardRefQ.current.setInput('');
             }
         }
     };
 
-    const handleQuantityFocus = () => {
-        setKeyboardInput('quantity');
-        setQuantity(''); // Clear quantity when focusing
-        if (keyboardRef.current) {
-            keyboardRef.current.setInput(''); // Reset keyboard input
+    const handleEdit = (index) => {
+        const item = orderItems[index];
+        setSelectedArticle(item.article.id);
+        setSelectedService(item.service.id);
+        setQuantity(item.quantity.toString());
+        setBrand(item.brand); // Prefill brand
+        setSelectedColor(item.color);
+        setEditingIndex(index);
+        setShowKeyOrder(true);
+        if (keyboardRefQ.current) {
+            keyboardRefB.current.setInput(item.brand);
+            keyboardRefQ.current.setInput(item.quantity.toString());
         }
     };
 
+    const handleDelete = (index) => {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
+            setOrderItems((prevItems) => prevItems.filter((_, i) => i !== index));
+        }
+    };
+
+    const handleBrandFocus = () => {
+        setLayout('alphanumeric');
+        setKeyboardInput('brand');
+        if (keyboardRefB.current) {
+            keyboardRefB.current.setInput('');
+        }
+    };
+    console.log('qte' + quantity);
+    console.log('br' + brand);
+
+    const handleQuantityFocus = () => {
+        setLayout('numeric');
+        setKeyboardInput('quantity');
+        if (keyboardRefQ.current) {
+            keyboardRefQ.current.setInput('');
+        }
+    };
+
+    const valider = () => {
+        if (orderItems.length > 0) {
+            if (window.confirm('Êtes-vous sûr de vouloir valider ces commandes ?')) {
+                // Step 1: Create the ticket
+                const data = orderItems.map((item) => ({
+                    ticket_id: ticket_id,
+                    article_id: item.article.id,
+                    service_id: item.service.id,
+                    price: 33, // Adjust if price is calculated elsewhere
+                    quantity: item.quantity,
+                    brand: item.brand,
+                    color: item.color,
+                }));
+                let total_price = data.reduce((acc, item) => acc + item.price * item.quantity, 0);
+                
+                router.post(
+                    route('serve.ticket.store'),
+                    {
+                        // ticket_id: ticket_id,
+                        quantity: data.reduce((acc, item) => acc + item.quantity, 0),
+                        total_price: total_price,
+                    }, // Add any ticket-specific data if needed
+                    {
+                        onSuccess: () => {
+                            // Step 2: Prepare order items with the ticket_id
+
+                            // Step 3: Submit the orders
+                            router.post(
+                                route('serve.store'),
+                                { items: data },
+                                {
+                                    onSuccess: () => {
+                                        setOrderItems([]); // Clear the orderItems
+                                        alert('Commandes soumises avec succès !');
+                                    },
+                                    onError: (errors) => {
+                                        console.error(errors);
+                                        alert('Erreur lors de la soumission des commandes.');
+                                    },
+                                }
+                            );
+                        },
+                        onError: (errors) => {
+                            console.error(errors);
+                            alert('Erreur lors de la création du ticket.');
+                        },
+                    }
+                );
+            }
+        }
+    };
+
+    const colorOptions = [
+        // Red Palette
+        [
+            { name: 'Red', value: '#FF0000' },
+            { name: 'Red Light 1', value: '#FF756B' },
+            { name: 'Red Light 2', value: '#FFB2AC' },
+            { name: 'Red Light 3', value: '#FFD5D2' }
+        ],
+        // Blue Palette
+        [
+            { name: 'Blue', value: '#0000FF' },
+            { name: 'Blue Light 1', value: '#4D4DFF' },
+            { name: 'Blue Light 2', value: '#9999FF' },
+            { name: 'Blue Light 3', value: '#CCCCFF' }
+        ],
+        // Green Palette
+        [
+            { name: 'Green', value: '#00FF00' },
+            { name: 'Green Light 1', value: '#66FF66' },
+            { name: 'Green Light 2', value: '#99FF99' },
+            { name: 'Green Light 3', value: '#CCFFCC' }
+        ],
+        // Black Palette
+        [
+            { name: 'Black', value: '#000000' },
+            { name: 'Black Shade 1', value: '#333333' },
+            { name: 'Black Shade 2', value: '#666666' },
+            { name: 'Black Shade 3', value: '#999999' }
+        ],
+        // White Palette
+        [
+            { name: 'White', value: '#FFFFFF' },
+            { name: 'White Shade 1', value: '#F5F5F5' },
+            { name: 'White Shade 2', value: '#ECECEC' },
+            { name: 'White Shade 3', value: '#E0E0E0' }
+        ],
+        // Yellow Palette
+        [
+            { name: 'Yellow', value: '#FFFF00' },
+            { name: 'Yellow Light 1', value: '#FFFF66' },
+            { name: 'Yellow Light 2', value: '#FFFF99' },
+            { name: 'Yellow Light 3', value: '#FFFFCC' }
+        ],
+        // Purple Palette
+        [
+            { name: 'Purple', value: '#800080' },
+            { name: 'Purple Light 1', value: '#993399' },
+            { name: 'Purple Light 2', value: '#CC99CC' },
+            { name: 'Purple Light 3', value: '#E6CCE6' }
+        ],
+        // Orange Palette
+        [
+            { name: 'Orange', value: '#FFA500' },
+            { name: 'Orange Light 1', value: '#FFBB33' },
+            { name: 'Orange Light 2', value: '#FFCC66' },
+            { name: 'Orange Light 3', value: '#FFDD99' }
+        ],
+        // Pink Palette
+        [
+            { name: 'Pink', value: '#FFC1CC' },
+            { name: 'Pink Light 1', value: '#FFD1DC' },
+            { name: 'Pink Light 2', value: '#FFE6EB' },
+            { name: 'Pink Dark 1', value: '#FF99AA' }
+        ],
+        // Gray Palette
+        [
+            { name: 'Gray', value: '#808080' },
+            { name: 'Gray Light 1', value: '#A9A9A9' },
+            { name: 'Gray Light 2', value: '#D3D3D3' },
+            { name: 'Gray Dark 1', value: '#696969' }
+        ],
+        // Cyan Palette
+        [
+            { name: 'Cyan', value: '#00FFFF' },
+            { name: 'Cyan Light 1', value: '#66FFFF' },
+            { name: 'Cyan Light 2', value: '#99FFFF' },
+            { name: 'Cyan Light 3', value: '#CCFFFF' }
+        ],
+        // Magenta Palette
+        [
+            { name: 'Magenta', value: '#FF00FF' },
+            { name: 'Magenta Light 1', value: '#FF66FF' },
+            { name: 'Magenta Light 2', value: '#FF99FF' },
+            { name: 'Magenta Light 3', value: '#FFCCFF' }
+        ]
+    ];
+
     return (
         <Dashboard>
-            <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
-                <h2 className="text-2xl font-bold mb-4 text-center">Prendre Commandes</h2>
-                <div className="space-y-4">
+            <div className="container">
+                <h2 className="title">Prendre Commandes</h2>
+                <div className="form-section">
                     {/* Article Selection */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Article</label>
-                        <select
-                            value={selectedArticle}
-                            onChange={(e) => {
-                                setSelectedArticle(e.target.value);
-                                setQuantity(''); // Reset quantity when changing article
-                                if (keyboardRef.current) {
-                                    keyboardRef.current.setInput('');
-                                }
-                            }}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                        >
-                            <option value="">Sélectionner un article</option>
+                        <label className="label">Article</label>
+                        <div className="article-grid">
                             {articles?.map((article) => (
-                                <option key={article.id} value={article.id}>
-                                    {article.name}
-                                </option>
+                                <button
+                                    key={article.id}
+                                    onClick={() => {
+                                        setSelectedArticle(article.id);
+                                        setQuantity('');
+                                        setBrand(''); // Reset brand
+                                        setSelectedColor('');
+                                        setShowKeyOrder(true);
+                                        if (keyboardRefQ.current && keyboardRefB.current) {
+                                            keyboardRefQ.current.setInput('');
+                                            keyboardRefB.current.setInput('');
+                                        }
+                                    }}
+                                    className={`article-card ${selectedArticle === article.id ? 'article-card-selected' : ''}`}
+                                >
+                                    <span className="article-name">{article.name}</span>
+                                    <img src={`/storage/${article.image}`} alt={article.name} className="article-image" />
+                                </button>
                             ))}
-                        </select>
-                    </div>
-
-                    {/* Quantity Input */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Quantité</label>
-                        <input
-                            value={quantity}
-                            readOnly
-                            onFocus={handleQuantityFocus}
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                            placeholder="Enter quantity"
-                        />
+                        </div>
                     </div>
 
                     {/* Virtual Keyboard */}
-                    <div className="flex justify-center">
-                        <Keyboard
-                            keyboardRef={r => (keyboardRef.current = r)}
-                            layoutName={layout}
-                            layout={keyboardLayout}
-                            onChange={onKeyboardChange}
-                            onKeyPress={onKeyPress}
-                            inputName={keyboardInput}
-                            display={{
-                                '{bksp}': '⌫',
-                                // '{enter}': '↵',
-                                // '{shift}': '⇧',
-                                // '{space}': ' '
-                            }}
-                        />
-                        {/* Order Summary */}
-                        {orderItems.length > 0 && (
-                            <div className="mt-4">
-                                <h3 className="text-lg font-semibold">Commandes en cours</h3>
-                                <ul className="list-disc pl-5 mt-2">
-                                    {orderItems.map((item, index) => (
-                                        <li key={index} className="py-1">
-                                            {item.article.name} - x{item.quantity}
-                                            {item.article.price && ` - ${item.quantity * item.article.price} DH`}
-                                        </li>
-                                    ))}
-                                </ul>
+                    {showkeyorder && (
+                        <div className="keyboard-order">
+                            <div className="keyboard-container">
+                                <div className="brand-quantity">
+                                    <label className="label">Marque</label>
+                                    <input
+                                        className="quantity-input"
+                                        value={brand}
+                                        readOnly
+                                        onFocus={handleBrandFocus}
+                                        placeholder="Enter brand"
+                                    />
+                                    <label className="label">Quantité</label>
+                                    <input
+                                        value={quantity}
+                                        readOnly
+                                        onFocus={handleQuantityFocus}
+                                        className="quantity-input"
+                                        placeholder="Enter quantity"
+                                    />
+                                </div>
+                                <Keyboard
+                                    keyboardRefB={(b) => (keyboardRefB.current = b)}
+                                    keyboardRefQ={(q) => (keyboardRefQ.current = q)}
+                                    layoutName={layout}
+                                    layout={keyboardLayout}
+                                    onChange={onKeyboardChange}
+                                    onKeyPress={onKeyPress}
+                                    inputName={keyboardInput}
+                                    display={{ '{bksp}': '⌫' }}
+                                />
                             </div>
-                        )}
-                    </div>
+                            <div className="order-detail">
+                                <label className="label">Services</label>
+                                <div className="service-grid">
+                                    {services?.map((service) => (
+                                        <button
+                                            key={service.id}
+                                            onClick={() => {
+                                                setSelectedService(service.id);
+                                                if (keyboardRefQ.current) {
+                                                    keyboardRefQ.current.setInput('');
+                                                }
+                                            }}
+                                            className={`service-card ${selectedService === service.id ? 'service-card-selected' : ''}`}
+                                        >
+                                            <img src={service.image} alt={service.name} className="service-image" />
+                                            <span className="service-name">{service.name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <div>
+                                    <label className="label">Couleur</label>
+                                    <div className="color-grid">
+                                        {colorOptions.map((colorGroup, index) => (
+                                            <div key={index} className="color">
+                                                {colorGroup.map((color) => (
+                                                    <button
+                                                        key={color.name}
+                                                        onClick={() => {
+                                                            if (selectedArticle) setSelectedColor(color.name);
+                                                        }}
+                                                        disabled={!selectedArticle}
+                                                        className={`color-swatch ${selectedColor === color.name && selectedArticle ? 'color-swatch-selected' : ''} ${!selectedArticle ? 'color-swatch-disabled' : ''}`}
+                                                        style={{ backgroundColor: color.value }}
+                                                    ></button>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="color-info">Selected Color: {selectedColor || 'None'}</p>
+                                </div>
+                                <button
+                                    onClick={handleAddOrUpdateOrder}
+                                    disabled={!selectedArticle || !selectedService || !quantity}
+                                    className="add-button"
+                                >
+                                    {editingIndex !== null ? 'Modifier la commande' : 'Ajouter à la commande'}
+                                </button>
 
-                    {/* Add to Order Button */}
-                    <button
-                        onClick={handleAddToOrder}
-                        disabled={!selectedArticle || !quantity}
-                        className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    >
-                        Ajouter à la commande
-                    </button>
+                                <button
+                                    onClick={() => {
+                                        setEditingIndex(null);
+                                        setSelectedArticle('');
+                                        setSelectedService('');
+                                        setQuantity('');
+                                        setBrand(''); // Reset brand
+                                        setSelectedColor('');
+                                        setShowKeyOrder(false);
+                                    }}
+                                    className="cancel-button"
+                                >
+                                    Annuler
+                                </button>
+
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Order Summary */}
+                    <div className="order-summary">
+                        <h3 className="order-title text-lg font-semibold mb-2">Commandes en cours</h3>
+                        <div className="order-table">
+                            <table className="min-w-full border-collapse border border-gray-300">
+                                <caption>Ticket Id: {ticket_id + 1}</caption>
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Article</th>
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Service</th>
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Prix</th>
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Quantité</th>
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Prix Total (DH)</th>
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Couleur</th>
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Marque</th>
+                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orderItems.map((item, index) => (
+                                        <tr key={index} className="hover:bg-gray-50">
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.article.name}</td>
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.service.name}</td>
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">
+                                                {item.article.price ? `${item.article.price} DH` : 'N/A'}
+                                            </td>
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">x{item.quantity}</td>
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">
+                                                {item.article.price ? `${item.quantity * item.article.price} DH` : 'N/A'}
+                                            </td>
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.color}</td>
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.brand}</td>
+                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">
+                                                <button onClick={() => handleEdit(index)} className="edit-button mr-2">
+                                                    Modifier
+                                                </button>
+                                                <button onClick={() => handleDelete(index)} className="delete-button">
+                                                    Supprimer
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <button className="bg-green-400 p-1 " onClick={valider}>Valider</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </Dashboard>
