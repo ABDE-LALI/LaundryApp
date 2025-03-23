@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('image');
+            $table->string('image')->nullable();
             $table->enum('gender', ['female', 'male', 'home'])->default('male');
             $table->string('description')->nullable();
             // $table->integer('p_wash'); 

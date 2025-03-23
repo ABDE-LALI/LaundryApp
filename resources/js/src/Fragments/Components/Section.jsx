@@ -30,7 +30,7 @@ export function Section() {
                 </svg>
                 <span>Recherche</span>
             </>,
-            route: 'serve.show'
+            route: 'serve.history'
         },
         Parametres: {
             element: <>
@@ -41,7 +41,7 @@ export function Section() {
                 </svg>
                 <span>Paramètres</span>
             </>,
-            route: 'serve.settings'
+            route: 'settings'
         }
     };
     

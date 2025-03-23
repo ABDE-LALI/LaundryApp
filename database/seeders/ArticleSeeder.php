@@ -81,7 +81,7 @@ class ArticleSeeder extends Seeder
         $maleArticlesData = array_map(function ($name) {
             return [
                 'name' => $name,
-                'image' => 'images/' . $name . '.jpg',
+                'image' => 'images/articles/' . $name . '.jpg',
                 'gender' => 'male',
                 'description' => null,
                 'created_at' => now(),
@@ -93,7 +93,7 @@ class ArticleSeeder extends Seeder
         $femaleArticlesData = array_map(function ($name) {
             return [
                 'name' => $name,
-                'image' => 'images/' . $name . '.jpg',
+                'image' => 'images/articles/' . $name . '.jpg',
                 'gender' => 'female',
                 'description' => null,
                 'created_at' => now(),
@@ -103,7 +103,7 @@ class ArticleSeeder extends Seeder
         $homeArticlesData = array_map(function ($name) {
             return [
                 'name' => $name,
-                'image' => 'images/' . $name . '.jpg',
+                'image' => 'images/articles/' . $name . '.jpg',
                 'gender' => 'home',
                 'description' => null,
                 'created_at' => now(),

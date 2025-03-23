@@ -94,11 +94,11 @@ $white: #fdfdfd;
         background-color: $blue-600;
         border: 1px solid $blue-800;
     }
-
+    
     .article-image {
         // width: 48px;
         // height: 48px;
-        border-radius: 8px;
+        // border-radius: 8px;
 
         margin-bottom: 8px;
         object-fit: cover;
@@ -107,6 +107,36 @@ $white: #fdfdfd;
     .article-name {
         font-size: 14px;
         font-weight: 500;
+    }
+}
+
+.service-grid {
+    display: flex;
+    justify-content: space-around;
+    border: solid black 1px;
+    padding: 8px;
+    border-radius: 8px;
+    .service-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: 1px solid $gray-300;
+        border-radius: 8px;
+        padding: 8px;
+        width: 120px;
+    
+        .service-image {
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+    }
+    .service-card-selected{
+        background-color: $blue-500;
+        border: 1px solid $blue-800;
     }
 }
 
@@ -169,28 +199,30 @@ $white: #fdfdfd;
     position: absolute;
     background-color: $white;
     display: flex;
-    .keyboard-container{
+
+    .keyboard-container {
         flex: 0.5;
     }
-.order-summary {
-    .order-title {
-        font-size: 18px;
-        font-weight: 600;
-    }
 
-    .order-list {
-        list-style-type: disc;
-        padding-left: 20px;
-        margin-top: 8px;
+    .order-summary {
+        .order-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
 
-        .order-item {
-            padding: 4px 0;
+        .order-list {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-top: 8px;
+
+            .order-item {
+                padding: 4px 0;
+            }
         }
     }
 }
-}
 
-.order-detail{
+.order-detail {
     flex: 1;
 }
 
@@ -217,14 +249,18 @@ $white: #fdfdfd;
 
 .edit-button {
     margin-right: 8px;
-    color: #3b82f6; /* Blue */
+    color: #3b82f6;
+
+    /* Blue */
     &:hover {
         color: #1e40af;
     }
 }
 
 .delete-button {
-    color: #ef4444; /* Red */
+    color: #ef4444;
+
+    /* Red */
     &:hover {
         color: #b91c1c;
     }
@@ -232,18 +268,26 @@ $white: #fdfdfd;
 
 .cancel-button {
     margin-left: 8px;
-    background-color: #6b7280; /* Gray */
+    background-color: #6b7280;
+    /* Gray */
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
 }
 
 .add-button {
-    background-color: #10b981; /* Green */
+    background-color: #10b981;
+    /* Green */
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
+
     &:disabled {
-        background-color: #d1d5db; /* Gray */
+        background-color: #d1d5db;
+        /* Gray */
     }
+}
+
+.edit-form{
+    position: absolute;
 }

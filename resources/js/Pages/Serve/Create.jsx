@@ -2,42 +2,21 @@ import { RightSideBar } from "@/src/Fragments/RightSideBar";
 import Dashboard from "../Dashboard";
 import React, { useState, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import Keyboard from 'react-simple-keyboard';
-import 'react-simple-keyboard/build/css/index.css';
-import { stringify } from "postcss";
+import VirtualKeyboard from '../../Components/VirtualKeyboard';
 
 export default function Create() {
     const { articles, services, ticket_id } = usePage().props;
     const [selectedArticle, setSelectedArticle] = useState('');
     const [selectedService, setSelectedService] = useState('');
     const [quantity, setQuantity] = useState('');
-    const [brand, setBrand] = useState(''); // Initialize as empty string
+    const [brand, setBrand] = useState('');
     const [orderItems, setOrderItems] = useState([]);
     const [keyboardInput, setKeyboardInput] = useState('quantity');
-    const [layout, setLayout] = useState('numeric');
     const [selectedColor, setSelectedColor] = useState('');
     const [showkeyorder, setShowKeyOrder] = useState(false);
     const [editingIndex, setEditingIndex] = useState(null);
     const keyboardRefQ = useRef(null);
     const keyboardRefB = useRef(null);
-
-    const keyboardLayout = {
-        numeric: ['1 2 3', '4 5 6', '7 8 9', '0 {bksp}'],
-        alphanumeric: [
-            '1 2 3 4 5 6 7 8 9 0',
-            'q w e r t y u i o p',
-            'a s d f g h j k l',
-            '{shift} z x c v b n m {bksp}',
-            '{space}',
-        ],
-        alphanumericShift: [
-            '! @ # $ % ^ & * ( )',
-            'Q W E R T Y U I O P',
-            'A S D F G H J K L',
-            '{shift} Z X C V B N M {bksp}',
-            '{space}',
-        ],
-    };
 
     const onKeyboardChange = (input) => {
         if (keyboardInput === 'quantity') {
@@ -48,9 +27,6 @@ export default function Create() {
     };
 
     const onKeyPress = (button) => {
-        if (button === '{shift}' || button === '{lock}') {
-            setLayout(layout === 'alphanumeric' ? 'alphanumericShift' : 'alphanumeric');
-        }
         if (button === '{enter}') {
             handleAddOrUpdateOrder();
         }
@@ -82,11 +58,10 @@ export default function Create() {
                 setOrderItems((prevItems) => [...prevItems, item]);
             }
 
-            // Reset form
             setSelectedArticle('');
             setSelectedService('');
             setQuantity('');
-            setBrand(''); // Reset brand
+            setBrand('');
             setSelectedColor('');
             setKeyboardInput('quantity');
             setShowKeyOrder(false);
@@ -102,14 +77,11 @@ export default function Create() {
         setSelectedArticle(item.article.id);
         setSelectedService(item.service.id);
         setQuantity(item.quantity.toString());
-        setBrand(item.brand); // Prefill brand
+        setBrand(item.brand);
         setSelectedColor(item.color);
         setEditingIndex(index);
         setShowKeyOrder(true);
-        if (keyboardRefQ.current) {
-            keyboardRefB.current.setInput(item.brand);
-            keyboardRefQ.current.setInput(item.quantity.toString());
-        }
+        setKeyboardInput('quantity'); // Start with quantity input focused
     };
 
     const handleDelete = (index) => {
@@ -119,56 +91,47 @@ export default function Create() {
     };
 
     const handleBrandFocus = () => {
-        setLayout('alphanumeric');
         setKeyboardInput('brand');
         if (keyboardRefB.current) {
-            keyboardRefB.current.setInput('');
+            keyboardRefB.current.setInput(brand || '');
         }
     };
-    console.log('qte' + quantity);
-    console.log('br' + brand);
 
     const handleQuantityFocus = () => {
-        setLayout('numeric');
         setKeyboardInput('quantity');
         if (keyboardRefQ.current) {
-            keyboardRefQ.current.setInput('');
+            keyboardRefQ.current.setInput(quantity || '');
         }
     };
 
     const valider = () => {
         if (orderItems.length > 0) {
             if (window.confirm('Êtes-vous sûr de vouloir valider ces commandes ?')) {
-                // Step 1: Create the ticket
                 const data = orderItems.map((item) => ({
                     ticket_id: ticket_id,
                     article_id: item.article.id,
                     service_id: item.service.id,
-                    price: 33, // Adjust if price is calculated elsewhere
+                    price: 33,
                     quantity: item.quantity,
                     brand: item.brand,
                     color: item.color,
                 }));
                 let total_price = data.reduce((acc, item) => acc + item.price * item.quantity, 0);
-                
+
                 router.post(
                     route('serve.ticket.store'),
                     {
-                        // ticket_id: ticket_id,
                         quantity: data.reduce((acc, item) => acc + item.quantity, 0),
                         total_price: total_price,
-                    }, // Add any ticket-specific data if needed
+                    },
                     {
                         onSuccess: () => {
-                            // Step 2: Prepare order items with the ticket_id
-
-                            // Step 3: Submit the orders
                             router.post(
                                 route('serve.store'),
                                 { items: data },
                                 {
                                     onSuccess: () => {
-                                        setOrderItems([]); // Clear the orderItems
+                                        setOrderItems([]);
                                         alert('Commandes soumises avec succès !');
                                     },
                                     onError: (errors) => {
@@ -290,7 +253,7 @@ export default function Create() {
                                     onClick={() => {
                                         setSelectedArticle(article.id);
                                         setQuantity('');
-                                        setBrand(''); // Reset brand
+                                        setBrand('');
                                         setSelectedColor('');
                                         setShowKeyOrder(true);
                                         if (keyboardRefQ.current && keyboardRefB.current) {
@@ -329,16 +292,26 @@ export default function Create() {
                                         placeholder="Enter quantity"
                                     />
                                 </div>
-                                <Keyboard
-                                    keyboardRefB={(b) => (keyboardRefB.current = b)}
-                                    keyboardRefQ={(q) => (keyboardRefQ.current = q)}
-                                    layoutName={layout}
-                                    layout={keyboardLayout}
-                                    onChange={onKeyboardChange}
-                                    onKeyPress={onKeyPress}
-                                    inputName={keyboardInput}
-                                    display={{ '{bksp}': '⌫' }}
-                                />
+                                {keyboardInput === 'quantity' && (
+                                    <VirtualKeyboard
+                                        keyboardRef={keyboardRefQ}
+                                        onChange={onKeyboardChange}
+                                        onKeyPress={onKeyPress}
+                                        inputName="quantity"
+                                        initialLayout="numeric"
+                                        initialValue={quantity} // Pass the current quantity value
+                                    />
+                                )}
+                                {keyboardInput === 'brand' && (
+                                    <VirtualKeyboard
+                                        keyboardRef={keyboardRefB}
+                                        onChange={onKeyboardChange}
+                                        onKeyPress={onKeyPress}
+                                        inputName="brand"
+                                        initialLayout="alphanumeric"
+                                        initialValue={brand} // Pass the current brand value
+                                    />
+                                )}
                             </div>
                             <div className="order-detail">
                                 <label className="label">Services</label>
@@ -348,13 +321,16 @@ export default function Create() {
                                             key={service.id}
                                             onClick={() => {
                                                 setSelectedService(service.id);
-                                                if (keyboardRefQ.current) {
+                                                if (keyboardRefQ.current && keyboardInput === 'quantity') {
                                                     keyboardRefQ.current.setInput('');
+                                                }
+                                                if (keyboardRefB.current && keyboardInput === 'brand') {
+                                                    keyboardRefB.current.setInput('');
                                                 }
                                             }}
                                             className={`service-card ${selectedService === service.id ? 'service-card-selected' : ''}`}
                                         >
-                                            <img src={service.image} alt={service.name} className="service-image" />
+                                            <img src={`/storage/${service.image}`} alt={service.name} className="service-image" />
                                             <span className="service-name">{service.name}</span>
                                         </button>
                                     ))}
@@ -387,14 +363,14 @@ export default function Create() {
                                 >
                                     {editingIndex !== null ? 'Modifier la commande' : 'Ajouter à la commande'}
                                 </button>
-
                                 <button
                                     onClick={() => {
                                         setEditingIndex(null);
                                         setSelectedArticle('');
                                         setSelectedService('');
                                         setQuantity('');
-                                        setBrand(''); // Reset brand
+                                        setKeyboardInput('quantity');
+                                        setBrand('');
                                         setSelectedColor('');
                                         setShowKeyOrder(false);
                                     }}
@@ -402,7 +378,6 @@ export default function Create() {
                                 >
                                     Annuler
                                 </button>
-
                             </div>
                         </div>
                     )}
@@ -451,7 +426,7 @@ export default function Create() {
                                     ))}
                                 </tbody>
                             </table>
-                            <button className="bg-green-400 p-1 " onClick={valider}>Valider</button>
+                            <button className="bg-green-400 p-1" onClick={valider}>Valider</button>
                         </div>
                     </div>
                 </div>

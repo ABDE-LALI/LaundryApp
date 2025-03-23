@@ -1,12 +1,12 @@
 import { Head } from "@inertiajs/react";
+import React from "react";
 import Dashboard from "../Dashboard";
-
-export default function Show() {
+export default function Index() {
     return (
         <Dashboard>
-            <Head title="show" />
+            <Head title="Serve" />
             <div>
-                <h1>show</h1>
+                <h1>Serve</h1>
             </div>
         </Dashboard>
     );

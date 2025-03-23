@@ -302,6 +302,7 @@
 
 .dashboard {
   display: flex;
+  position: relative;
 }
 
 .container {
@@ -377,13 +378,41 @@
   border: 1px solid #1e40af;
 }
 .article-card .article-image {
-  border-radius: 8px;
   margin-bottom: 8px;
   object-fit: cover;
 }
 .article-card .article-name {
   font-size: 14px;
   font-weight: 500;
+}
+
+.service-grid {
+  display: flex;
+  justify-content: space-around;
+  border: solid black 1px;
+  padding: 8px;
+  border-radius: 8px;
+}
+.service-grid .service-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px;
+  width: 120px;
+}
+.service-grid .service-card .service-image {
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  object-fit: cover;
+}
+.service-grid .service-card-selected {
+  background-color: #3b82f6;
+  border: 1px solid #1e40af;
 }
 
 .color-grid {
@@ -476,14 +505,16 @@
 
 .edit-button {
   margin-right: 8px;
-  color: #3b82f6; /* Blue */
+  color: #3b82f6;
+  /* Blue */
 }
 .edit-button:hover {
   color: #1e40af;
 }
 
 .delete-button {
-  color: #ef4444; /* Red */
+  color: #ef4444;
+  /* Red */
 }
 .delete-button:hover {
   color: #b91c1c;
@@ -491,20 +522,27 @@
 
 .cancel-button {
   margin-left: 8px;
-  background-color: #6b7280; /* Gray */
+  background-color: #6b7280;
+  /* Gray */
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
 }
 
 .add-button {
-  background-color: #10b981; /* Green */
+  background-color: #10b981;
+  /* Green */
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
 }
 .add-button:disabled {
-  background-color: #d1d5db; /* Gray */
+  background-color: #d1d5db;
+  /* Gray */
+}
+
+.edit-form {
+  position: absolute;
 }
 
 #root {
