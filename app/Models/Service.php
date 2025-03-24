@@ -22,6 +22,6 @@ class Service extends Model
     // One-to-many relationship (Service belongs to one Article)
     public function articles()
     {
-        return $this->belongsToMany(Article::class, 'ArticleService')->withPivot('price');
+        return $this->belongsToMany(Article::class, 'article_services')->withPivot('price');
     }
 }

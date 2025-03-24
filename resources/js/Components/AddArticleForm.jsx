@@ -1,35 +1,25 @@
 import { Head, router } from "@inertiajs/react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import VirtualKeyboard from "./VirtualKeyboard";
 import Dashboard from "@/Pages/Dashboard"; // Import Dashboard for consistent layout
 
-export default function EditArticleForm(props) {
-    // Initialize state with the article's existing data
+export default function AddArticleForm(props) {
+    // Single state object to manage all form fields
     const [formData, setFormData] = useState({
-        name: props.article.name || '',
-        description: props.article.description || '',
-        gender: props.article.gender || '',
-        washPrice: props.article.washPrice || '',
-        dryPrice: props.article.dryPrice || '',
-        ironPrice: props.article.ironPrice || '',
-        paintPrice: props.article.paintPrice || ''
+        name: '',
+        description: '',
+        gender: '',
+        washPrice: '',
+        dryPrice: '',
+        ironPrice: '',
+        paintPrice: ''
     });
 
     const [image, setImage] = useState(null);
-    const [currentImage, setCurrentImage] = useState(props.article.image || '');
-    const [keyboardInput, setKeyboardInput] = useState(null);
+    const [keyboardInput, setKeyboardInput] = useState(null); // Tracks the active input field
     const [showKeyboard, setShowKeyboard] = useState(false);
-    const [keyboardLayout, setKeyboardLayout] = useState('alphanumeric');
-    const keyboardRef = useRef(null);
-
-    // Clean up object URL for image preview
-    useEffect(() => {
-        return () => {
-            if (currentImage && currentImage.startsWith('blob:')) {
-                URL.revokeObjectURL(currentImage);
-            }
-        };
-    }, [currentImage]);
+    const [keyboardLayout, setKeyboardLayout] = useState('alphanumeric'); // Default layout
+    const keyboardRef = useRef(null); // Single ref for the keyboard
 
     // Handle keyboard input changes for all inputs
     const onKeyboardChangeAll = useCallback((inputs) => {
@@ -48,14 +38,14 @@ export default function EditArticleForm(props) {
         }
     };
 
-    // Handle input click to show the keyboard and sync its state
-    const handleInputClick = (field) => {
+    // Handle input focus to show the keyboard and sync its state
+    const handleFocus = (field) => {
         setKeyboardInput(field);
         setShowKeyboard(true);
         const isPriceField = ["washPrice", "dryPrice", "ironPrice", "paintPrice"].includes(field);
         setKeyboardLayout(isPriceField ? "numeric" : "alphanumeric");
         if (keyboardRef.current) {
-            keyboardRef.current.setInput(formData[field] || '', field);
+            keyboardRef.current.setInput(formData[field] || '', field); // Sync keyboard with current value
         }
     };
 
@@ -67,28 +57,24 @@ export default function EditArticleForm(props) {
         const file = e.target.files[0];
         if (file) {
             setImage(file);
-            setCurrentImage(URL.createObjectURL(file));
         }
     };
 
     // Handle form submission using Inertia
     const handleSubmit = () => {
-        if (!formData.name || !formData.gender) {
-            alert('Please fill in all required fields (name and gender).');
+        if (!formData.name || !formData.description || !formData.gender) {
+            alert('Please fill in all required fields (name, description, and gender).');
             return;
         }
 
         const formPayload = new FormData();
-        formPayload.append('id', props.article.id);
         Object.keys(formData).forEach((key) => formPayload.append(key, formData[key]));
         if (image) {
             formPayload.append('image', image);
         }
-        formPayload.append('_method', 'PUT');
 
-        router.post(route('settings.updateArticle'), formPayload, {
+        router.post(route('settings.storeArticle'), formPayload, {
             onSuccess: () => {
-                props.setshowmodifyForm(false);
                 setFormData({
                     name: '',
                     description: '',
@@ -99,54 +85,57 @@ export default function EditArticleForm(props) {
                     paintPrice: ''
                 });
                 setImage(null);
-                setCurrentImage('');
                 setShowKeyboard(false);
                 setKeyboardInput(null);
-                alert('Article updated successfully!');
+                props.setshowaddForm(false);
+                alert('Article added successfully!');
             },
             onError: (errors) => {
                 console.error(errors);
-                alert('Error updating article: ' + (Object.values(errors).join(', ') || 'Unknown error'));
+                alert('Error adding article: ' + (Object.values(errors).join(', ') || 'Unknown error'));
             },
         });
     };
 
     return (
-            <div className="edit-form">
-                <Head title="Edit Article" />
+            <div className="add-form" style={{ display: "flex", flexDirection: "column" }}>
+                <Head title="Add Article" />
                 <div className="container">
-                    <h1 className="title">Edit Article</h1>
+                    <h1 className="title">Add Article</h1>
                     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="form-section">
                         {/* Name Field */}
                         <div className="form-group">
-                            <label className="label">Name</label>
+                            <label htmlFor="name" className="label">Name</label>
                             <input
                                 type="text"
+                                id="name"
                                 value={formData.name}
                                 onChange={preventDirectTyping}
-                                onClick={() => handleInputClick('name')}
+                                onClick={() => handleFocus('name')}
                                 className="quantity-input"
-                                placeholder="Click to edit article name"
+                                placeholder="Click to enter article name"
                             />
                         </div>
 
                         {/* Description Field */}
                         <div className="form-group">
-                            <label className="label">Description</label>
+                            <label htmlFor="description" className="label">Description</label>
                             <input
                                 type="text"
+                                id="description"
                                 value={formData.description}
                                 onChange={preventDirectTyping}
-                                onClick={() => handleInputClick('description')}
+                                onClick={() => handleFocus('description')}
                                 className="quantity-input"
-                                placeholder="Click to edit description"
+                                placeholder="Click to enter description"
                             />
                         </div>
 
                         {/* Gender Select */}
                         <div className="form-group">
-                            <label className="label">Gender</label>
+                            <label htmlFor="gender" className="label">Gender</label>
                             <select
+                                id="gender"
                                 value={formData.gender}
                                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                                 className="quantity-input"
@@ -166,28 +155,23 @@ export default function EditArticleForm(props) {
                                     type="text"
                                     value={formData[field]}
                                     onChange={preventDirectTyping}
-                                    onClick={() => handleInputClick(field)}
+                                    onClick={() => handleFocus(field)}
                                     className="quantity-input"
-                                    placeholder={`Click to edit ${field.replace("Price", " price")}`}
+                                    placeholder={`Click to enter ${field.replace("Price", " price")}`}
                                 />
                             </div>
                         ))}
 
                         {/* Image Upload */}
                         <div className="form-group">
-                            <label className="label">Image</label>
-                            {currentImage && (
-                                <div className="image-preview">
-                                    <img
-                                        src={currentImage.startsWith('blob:') ? currentImage : `/storage/${currentImage}`}
-                                        alt="Current article"
-                                        className="article-image"
-                                        style={{ maxWidth: '100px', marginBottom: '10px' }}
-                                        onError={(e) => (e.target.src = '/path/to/fallback-image.jpg')}
-                                    />
-                                </div>
-                            )}
-                            <input type="file" onChange={handleImageChange} className="quantity-input" accept="image/*" />
+                            <label htmlFor="image" className="label">Image</label>
+                            <input
+                                type="file"
+                                id="image"
+                                onChange={handleImageChange}
+                                className="quantity-input"
+                                accept="image/*"
+                            />
                         </div>
 
                         {/* Virtual Keyboard */}
@@ -213,11 +197,11 @@ export default function EditArticleForm(props) {
                             </div>
                         )}
 
-                        <button type="submit" className="add-button mt-4">Update Article</button>
+                        <button type="submit" className="add-button mt-4">Submit</button>
                         <button
                             type="button"
                             onClick={() => {
-                                props.setshowmodifyForm(false);
+                                props.setshowaddForm(false);
                                 setShowKeyboard(false);
                                 setKeyboardInput(null);
                             }}

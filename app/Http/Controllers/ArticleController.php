@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\ArticleService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,10 +16,6 @@ class ArticleController extends Controller
             'articles' => $articles,
         ]);
     }
-    public function create()
-    {
-        return Inertia::render('Settings/AddArticle');
-    }
     public function store(Request $request)
     {
         $request->validate([
@@ -26,17 +23,33 @@ class ArticleController extends Controller
             'gender' => 'required|in:female,male,home',
             'image' => 'nullable|image|max:2048', // Max 2MB
             'description' => 'string',
+            'ironPrice' => 'required|numeric',
+            'washPrice' => 'required|numeric',
+            'dryPrice' => 'required|numeric',
+            'paintPrice' => 'required|numeric',
         ]);
-
+        $prices = [
+            'washPrice' => $request->washPrice,
+            'dryPrice' => $request->dryPrice,
+            'ironPrice' => $request->ironPrice,
+            'paintPrice' => $request->paintPrice,
+        ];
         $article = new Article();
-        $article->name = $request->name;
-
+        $article->name = $request->name;        
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('images', 'public');
             $article->image = $path; // e.g., "images/example.jpg"
         }
 
         $article->save();
+        $i = 1;
+        foreach ($prices as $price) {
+            $ArticleService = new ArticleService();
+            $ArticleService->article_id = $article->id;
+            $ArticleService->service_id = $i++;
+            $ArticleService->price = $price;
+            $ArticleService->save();
+        };
 
         return redirect()->back()->with('success', 'Article added successfully.');
     }
@@ -47,8 +60,39 @@ class ArticleController extends Controller
             'article' => $article,
         ]);
     }
-    public function update(Request $request, Article $article)
+    public function update(Request $request)
     {
-        return '';
+        // Validate incoming form data
+        $request->validate([
+            'id' => 'required|exists:articles,id', // Ensure the ID exists
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'gender' => 'required|in:female,male,home',
+            'image' => 'nullable|image|max:2048', // Validate image file
+        ]);
+
+        // Find the article or fail
+        $article = Article::findOrFail($request->id);
+
+        // Update fields
+        $article->name = $request->name;
+        $article->description = $request->description;
+        $article->gender = $request->gender;
+
+        // Handle file upload (if exists)
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('articles', 'public');
+            $article->image = $path;
+        }
+
+        // Save the updated article
+        $article->save();
+
+        return redirect()->back()->with('success', 'Article updated successfully.');
+    }
+    public function destroy(Article $article)
+    {
+        $article->delete();
+        return redirect()->back()->with('success', 'Article deleted successfully.');
     }
 }

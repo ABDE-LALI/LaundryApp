@@ -13,7 +13,7 @@ class Article extends Model
     ];
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'article_service')->withPivot('price');
+        return $this->belongsToMany(Service::class, 'article_services')->withPivot('price');
     }
     public function bills()
     {

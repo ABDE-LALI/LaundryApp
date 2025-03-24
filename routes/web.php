@@ -53,13 +53,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //this page contains the settings of the user
     Route::get('settings', [ArticleController::class, 'index'])
         ->name('settings');
-    Route::get('settings/addArticle', [ArticleController::class, 'create'])
-        ->name('settings.addArticle');
+    // Route::get('settings/addArticle', [ArticleController::class, 'create'])
+    //     ->name('settings.addArticle');
     Route::post('settings/storeArticle', [ArticleController::class, 'store'])
         ->name('settings.storeArticle');
     Route::get('settings/editArticle/{article}', [ArticleController::class, 'edit'])
         ->name('settings.editArticle');
-    Route::patch('settings/updateArticle/{article}', [ArticleController::class, 'update'])
+    Route::put('settings/updateArticle', [ArticleController::class, 'update'])
         ->name('settings.updateArticle');
     Route::delete('settings/deleteArticle/{article}', [ArticleController::class, 'destroy'])
         ->name('settings.deleteArticle');

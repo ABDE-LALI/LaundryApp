@@ -3,32 +3,92 @@ import Dashboard from "../Dashboard";
 import React, { useState, useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import VirtualKeyboard from '../../Components/VirtualKeyboard';
+// const Create = () => {
+//     const [quantity, setQuantity] = useState('');
+//     const [brand, setBrand] = useState('');
+//     const [activeInput, setActiveInput] = useState(null);
+//     const [keyboardLayout, setKeyboardLayout] = useState('numeric');
+//     const keyboardRef = useRef(null);
 
+//     const onKeyboardChangeAll = (inputs) => {
+//         if (activeInput === 'quantity') {
+//             setQuantity(inputs['quantity'] || '');
+//         } else if (activeInput === 'brand') {
+//             setBrand(inputs['brand'] || '');
+//         }
+//     };
+
+//     const handleQuantityFocus = () => {
+//         setActiveInput('quantity');
+//         setKeyboardLayout('numeric');
+//         if (keyboardRef.current) {
+//             keyboardRef.current.setInput(quantity, 'quantity'); // Set initial value
+//         }
+//     };
+
+//     const handleBrandFocus = () => {
+//         setActiveInput('brand');
+//         setKeyboardLayout('alphanumeric');
+//         if (keyboardRef.current) {
+//             keyboardRef.current.setInput(brand, 'brand'); // Set initial value
+//         }
+//     };
+
+//     return (
+//         <div>
+//             <input
+//                 type="text"
+//                 value={quantity}
+//                 onFocus={handleQuantityFocus}
+//                 placeholder="Quantity"
+//             />
+//             <input
+//                 type="text"
+//                 value={brand}
+//                 onFocus={handleBrandFocus}
+//                 placeholder="Brand"
+//             />
+//             <VirtualKeyboard
+//                 keyboardRef={keyboardRef}
+//                 onChangeAll={onKeyboardChangeAll}
+//                 initialLayout={keyboardLayout}
+//                 inputName={activeInput} // Pass the active input name
+//             />
+//         </div>
+//     );
+// };
 export default function Create() {
     const { articles, services, ticket_id } = usePage().props;
     const [selectedArticle, setSelectedArticle] = useState('');
     const [selectedService, setSelectedService] = useState('');
-    const [quantity, setQuantity] = useState('');
-    const [brand, setBrand] = useState('');
+    // const [quantity, setQuantity] = useState('');
+    // const [brand, setBrand] = useState('');
     const [orderItems, setOrderItems] = useState([]);
-    const [keyboardInput, setKeyboardInput] = useState('quantity');
     const [selectedColor, setSelectedColor] = useState('');
     const [showkeyorder, setShowKeyOrder] = useState(false);
     const [editingIndex, setEditingIndex] = useState(null);
-    const keyboardRefQ = useRef(null);
-    const keyboardRefB = useRef(null);
+    // const [keyboardLayout, setKeyboardLayout] = useState('numeric');
+    // const [activeInput, setActiveInput] = useState(null); // Track the active input
+    // const keyboardRef = useRef(null);
+    const [quantity, setQuantity] = useState('');
+    const [brand, setBrand] = useState('');
+    const [activeInput, setActiveInput] = useState(null);
+    const [keyboardLayout, setKeyboardLayout] = useState('numeric');
+    const keyboardRef = useRef(null);
 
-    const onKeyboardChange = (input) => {
-        if (keyboardInput === 'quantity') {
-            setQuantity(input);
-        } else if (keyboardInput === 'brand') {
-            setBrand(input);
-        }
-    };
+    // const onKeyboardChangeAll = (inputs) => {
+    //     if (activeInput === 'quantity') {
+    //         setQuantity(inputs['quantity'] || '');
+    //     } else if (activeInput === 'brand') {
+    //         setBrand(inputs['brand'] || '');
+    //     }
+    // };
 
-    const onKeyPress = (button) => {
-        if (button === '{enter}') {
-            handleAddOrUpdateOrder();
+    const onKeyboardChangeAll = (inputs) => {
+        if (activeInput === 'quantity') {
+            setQuantity(inputs['quantity'] || '');
+        } else if (activeInput === 'brand') {
+            setBrand(inputs['brand'] || '');
         }
     };
 
@@ -63,11 +123,11 @@ export default function Create() {
             setQuantity('');
             setBrand('');
             setSelectedColor('');
-            setKeyboardInput('quantity');
             setShowKeyOrder(false);
-            if (keyboardRefQ.current && keyboardRefB.current) {
-                keyboardRefB.current.setInput('');
-                keyboardRefQ.current.setInput('');
+            setActiveInput(null);
+            if (keyboardRef.current) {
+                keyboardRef.current.setInput('', 'quantity');
+                keyboardRef.current.setInput('', 'brand');
             }
         }
     };
@@ -81,7 +141,11 @@ export default function Create() {
         setSelectedColor(item.color);
         setEditingIndex(index);
         setShowKeyOrder(true);
-        setKeyboardInput('quantity'); // Start with quantity input focused
+        setKeyboardLayout('numeric');
+        if (keyboardRef.current) {
+            keyboardRef.current.setInput(item.quantity.toString(), 'quantity');
+            keyboardRef.current.setInput(item.brand, 'brand');
+        }
     };
 
     const handleDelete = (index) => {
@@ -90,17 +154,33 @@ export default function Create() {
         }
     };
 
-    const handleBrandFocus = () => {
-        setKeyboardInput('brand');
-        if (keyboardRefB.current) {
-            keyboardRefB.current.setInput(brand || '');
+    // const handleQuantityFocus = () => {
+    //     setActiveInput('quantity');
+    //     setKeyboardLayout('numeric');
+    //     if (keyboardRef.current) {
+    //         keyboardRef.current.setInput(quantity, 'quantity');
+    //     }
+    // };
+    const handleQuantityFocus = () => {
+        setActiveInput('quantity');
+        setKeyboardLayout('numeric');
+        if (keyboardRef.current) {
+            keyboardRef.current.setInput(quantity, 'quantity'); // Set initial value
         }
     };
 
-    const handleQuantityFocus = () => {
-        setKeyboardInput('quantity');
-        if (keyboardRefQ.current) {
-            keyboardRefQ.current.setInput(quantity || '');
+    // const handleBrandFocus = () => {
+    //     setActiveInput('brand');
+    //     setKeyboardLayout('alphanumeric');
+    //     if (keyboardRef.current) {
+    //         keyboardRef.current.setInput(brand, 'brand');
+    //     }
+    // };
+    const handleBrandFocus = () => {
+        setActiveInput('brand');
+        setKeyboardLayout('alphanumeric');
+        if (keyboardRef.current) {
+            keyboardRef.current.setInput(brand, 'brand'); // Set initial value
         }
     };
 
@@ -152,90 +232,7 @@ export default function Create() {
     };
 
     const colorOptions = [
-        // Red Palette
-        [
-            { name: 'Red', value: '#FF0000' },
-            { name: 'Red Light 1', value: '#FF756B' },
-            { name: 'Red Light 2', value: '#FFB2AC' },
-            { name: 'Red Light 3', value: '#FFD5D2' }
-        ],
-        // Blue Palette
-        [
-            { name: 'Blue', value: '#0000FF' },
-            { name: 'Blue Light 1', value: '#4D4DFF' },
-            { name: 'Blue Light 2', value: '#9999FF' },
-            { name: 'Blue Light 3', value: '#CCCCFF' }
-        ],
-        // Green Palette
-        [
-            { name: 'Green', value: '#00FF00' },
-            { name: 'Green Light 1', value: '#66FF66' },
-            { name: 'Green Light 2', value: '#99FF99' },
-            { name: 'Green Light 3', value: '#CCFFCC' }
-        ],
-        // Black Palette
-        [
-            { name: 'Black', value: '#000000' },
-            { name: 'Black Shade 1', value: '#333333' },
-            { name: 'Black Shade 2', value: '#666666' },
-            { name: 'Black Shade 3', value: '#999999' }
-        ],
-        // White Palette
-        [
-            { name: 'White', value: '#FFFFFF' },
-            { name: 'White Shade 1', value: '#F5F5F5' },
-            { name: 'White Shade 2', value: '#ECECEC' },
-            { name: 'White Shade 3', value: '#E0E0E0' }
-        ],
-        // Yellow Palette
-        [
-            { name: 'Yellow', value: '#FFFF00' },
-            { name: 'Yellow Light 1', value: '#FFFF66' },
-            { name: 'Yellow Light 2', value: '#FFFF99' },
-            { name: 'Yellow Light 3', value: '#FFFFCC' }
-        ],
-        // Purple Palette
-        [
-            { name: 'Purple', value: '#800080' },
-            { name: 'Purple Light 1', value: '#993399' },
-            { name: 'Purple Light 2', value: '#CC99CC' },
-            { name: 'Purple Light 3', value: '#E6CCE6' }
-        ],
-        // Orange Palette
-        [
-            { name: 'Orange', value: '#FFA500' },
-            { name: 'Orange Light 1', value: '#FFBB33' },
-            { name: 'Orange Light 2', value: '#FFCC66' },
-            { name: 'Orange Light 3', value: '#FFDD99' }
-        ],
-        // Pink Palette
-        [
-            { name: 'Pink', value: '#FFC1CC' },
-            { name: 'Pink Light 1', value: '#FFD1DC' },
-            { name: 'Pink Light 2', value: '#FFE6EB' },
-            { name: 'Pink Dark 1', value: '#FF99AA' }
-        ],
-        // Gray Palette
-        [
-            { name: 'Gray', value: '#808080' },
-            { name: 'Gray Light 1', value: '#A9A9A9' },
-            { name: 'Gray Light 2', value: '#D3D3D3' },
-            { name: 'Gray Dark 1', value: '#696969' }
-        ],
-        // Cyan Palette
-        [
-            { name: 'Cyan', value: '#00FFFF' },
-            { name: 'Cyan Light 1', value: '#66FFFF' },
-            { name: 'Cyan Light 2', value: '#99FFFF' },
-            { name: 'Cyan Light 3', value: '#CCFFFF' }
-        ],
-        // Magenta Palette
-        [
-            { name: 'Magenta', value: '#FF00FF' },
-            { name: 'Magenta Light 1', value: '#FF66FF' },
-            { name: 'Magenta Light 2', value: '#FF99FF' },
-            { name: 'Magenta Light 3', value: '#FFCCFF' }
-        ]
+        // Your color options here
     ];
 
     return (
@@ -256,9 +253,11 @@ export default function Create() {
                                         setBrand('');
                                         setSelectedColor('');
                                         setShowKeyOrder(true);
-                                        if (keyboardRefQ.current && keyboardRefB.current) {
-                                            keyboardRefQ.current.setInput('');
-                                            keyboardRefB.current.setInput('');
+                                        setKeyboardLayout('numeric');
+                                        setActiveInput('quantity');
+                                        if (keyboardRef.current) {
+                                            keyboardRef.current.setInput('', 'quantity');
+                                            keyboardRef.current.setInput('', 'brand');
                                         }
                                     }}
                                     className={`article-card ${selectedArticle === article.id ? 'article-card-selected' : ''}`}
@@ -273,7 +272,7 @@ export default function Create() {
                     {/* Virtual Keyboard */}
                     {showkeyorder && (
                         <div className="keyboard-order">
-                            <div className="keyboard-container">
+                            {/* <div className="keyboard-container">
                                 <div className="brand-quantity">
                                     <label className="label">Marque</label>
                                     <input
@@ -292,26 +291,31 @@ export default function Create() {
                                         placeholder="Enter quantity"
                                     />
                                 </div>
-                                {keyboardInput === 'quantity' && (
-                                    <VirtualKeyboard
-                                        keyboardRef={keyboardRefQ}
-                                        onChange={onKeyboardChange}
-                                        onKeyPress={onKeyPress}
-                                        inputName="quantity"
-                                        initialLayout="numeric"
-                                        initialValue={quantity} // Pass the current quantity value
-                                    />
-                                )}
-                                {keyboardInput === 'brand' && (
-                                    <VirtualKeyboard
-                                        keyboardRef={keyboardRefB}
-                                        onChange={onKeyboardChange}
-                                        onKeyPress={onKeyPress}
-                                        inputName="brand"
-                                        initialLayout="alphanumeric"
-                                        initialValue={brand} // Pass the current brand value
-                                    />
-                                )}
+                                <VirtualKeyboard
+                                    keyboardRef={keyboardRef}
+                                    onChangeAll={onKeyboardChangeAll}
+                                    initialLayout={keyboardLayout}
+                                />
+                            </div> */}
+                            <div>
+                                <input
+                                    type="text"
+                                    value={quantity}
+                                    onFocus={handleQuantityFocus}
+                                    placeholder="Quantity"
+                                />
+                                <input
+                                    type="text"
+                                    value={brand}
+                                    onFocus={handleBrandFocus}
+                                    placeholder="Brand"
+                                />
+                                <VirtualKeyboard
+                                    keyboardRef={keyboardRef}
+                                    onChangeAll={onKeyboardChangeAll}
+                                    initialLayout={keyboardLayout}
+                                    inputName={activeInput} // Pass the active input name
+                                />
                             </div>
                             <div className="order-detail">
                                 <label className="label">Services</label>
@@ -319,15 +323,7 @@ export default function Create() {
                                     {services?.map((service) => (
                                         <button
                                             key={service.id}
-                                            onClick={() => {
-                                                setSelectedService(service.id);
-                                                if (keyboardRefQ.current && keyboardInput === 'quantity') {
-                                                    keyboardRefQ.current.setInput('');
-                                                }
-                                                if (keyboardRefB.current && keyboardInput === 'brand') {
-                                                    keyboardRefB.current.setInput('');
-                                                }
-                                            }}
+                                            onClick={() => setSelectedService(service.id)}
                                             className={`service-card ${selectedService === service.id ? 'service-card-selected' : ''}`}
                                         >
                                             <img src={`/storage/${service.image}`} alt={service.name} className="service-image" />
@@ -343,11 +339,8 @@ export default function Create() {
                                                 {colorGroup.map((color) => (
                                                     <button
                                                         key={color.name}
-                                                        onClick={() => {
-                                                            if (selectedArticle) setSelectedColor(color.name);
-                                                        }}
-                                                        disabled={!selectedArticle}
-                                                        className={`color-swatch ${selectedColor === color.name && selectedArticle ? 'color-swatch-selected' : ''} ${!selectedArticle ? 'color-swatch-disabled' : ''}`}
+                                                        onClick={() => setSelectedColor(color.name)}
+                                                        className={`color-swatch ${selectedColor === color.name ? 'color-swatch-selected' : ''}`}
                                                         style={{ backgroundColor: color.value }}
                                                     ></button>
                                                 ))}
@@ -369,10 +362,10 @@ export default function Create() {
                                         setSelectedArticle('');
                                         setSelectedService('');
                                         setQuantity('');
-                                        setKeyboardInput('quantity');
                                         setBrand('');
                                         setSelectedColor('');
                                         setShowKeyOrder(false);
+                                        setActiveInput(null);
                                     }}
                                     className="cancel-button"
                                 >

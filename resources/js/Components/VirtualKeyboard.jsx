@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 
-const VirtualKeyboard = ({ onChange, onKeyPress, inputName, initialLayout = 'numeric', keyboardRef, initialValue = '' }) => {
+const VirtualKeyboard = ({ onChangeAll, onKeyPress, initialLayout = 'numeric', keyboardRef, inputName }) => {
     const [layout, setLayout] = useState(initialLayout);
     const internalKeyboardRef = useRef(null);
 
     const keyboardLayout = {
-        numeric: ['1 2 3', '4 5 6', '7 8 9', '0 {bksp}'],
+        numeric: ['1 2 3', '4 5 6', '7 8 9', '0 . {bksp}'],
         alphanumeric: [
             '1 2 3 4 5 6 7 8 9 0',
             'q w e r t y u i o p',
@@ -24,28 +24,19 @@ const VirtualKeyboard = ({ onChange, onKeyPress, inputName, initialLayout = 'num
         ],
     };
 
-    // Sync the keyboard's input value when the initialValue changes (e.g., during edit)
     useEffect(() => {
-        if (internalKeyboardRef.current) {
-            internalKeyboardRef.current.setInput(initialValue);
-            // Set caret position to the end of the input
-            internalKeyboardRef.current.caretPosition = initialValue.length;
-        }
-    }, [initialValue]);
+        setLayout(initialLayout);
+    }, [initialLayout]);
 
     const handleKeyPress = (button) => {
         if (button === '{shift}' || button === '{lock}') {
             setLayout(layout === 'alphanumeric' ? 'alphanumericShift' : 'alphanumeric');
         }
-        if (onKeyPress) {
-            onKeyPress(button);
-        }
+        if (onKeyPress) onKeyPress(button);
     };
 
-    const handleChange = (input) => {
-        if (onChange) {
-            onChange(input);
-        }
+    const handleChangeAll = (inputs) => {
+        if (onChangeAll) onChangeAll(inputs);
     };
 
     return (
@@ -56,12 +47,11 @@ const VirtualKeyboard = ({ onChange, onKeyPress, inputName, initialLayout = 'num
             }}
             layoutName={layout}
             layout={keyboardLayout}
-            onChange={handleChange}
+            onChangeAll={handleChangeAll}
             onKeyPress={handleKeyPress}
-            inputName={inputName}
+            inputName={inputName} // Add this to specify the active input
             display={{ '{bksp}': '⌫' }}
         />
     );
 };
-
 export default VirtualKeyboard;
