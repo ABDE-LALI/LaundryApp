@@ -339,7 +339,7 @@
 
 .article-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 5px;
   margin-top: 4px;
   max-height: 708px;
@@ -416,7 +416,9 @@
 }
 
 .color-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
 }
 
 .color-swatch {
@@ -547,6 +549,14 @@
 
 .add-form {
   position: absolute;
+}
+
+.orders-confirmation {
+  position: absolute;
+  background-color: #fdfdfd;
+  border: solid black 1px;
+  padding: 16px;
+  border-radius: 8px;
 }
 
 #root {

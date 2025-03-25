@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ServiceArticleController;
 use App\Http\Controllers\TicketController;
 use App\Models\Article;
 
@@ -22,6 +23,11 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get(
+        '/serve/get-article-service-price/{article_id}/{service_id}',
+        [ServiceArticleController::class, 'getPrice']
+    )->name('serve.getArticleServicePrice');
+
     //this route to store the ticket
     Route::post('serve/ticket/store', [TicketController::class, 'storeTicket'])->name('serve.ticket.store');
     //this route to store the orders

@@ -47,7 +47,7 @@ $white: #fdfdfd;
 // Article grid styles
 .article-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); // 4 columns
+    grid-template-columns: repeat(6, 1fr); // 4 columns
     gap: 5px;
     margin-top: 4px;
     max-height: calc(6 * (48px + 16px + 16px + 8px + 14px + 16px)); // 3 rows height
@@ -142,7 +142,9 @@ $white: #fdfdfd;
 
 // Color grid styles
 .color-grid {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); // 4 columns
+    gap: 1px;
 
 }
 
@@ -293,4 +295,12 @@ $white: #fdfdfd;
 }
 .add-form{
     position: absolute;
+}
+
+.orders-confirmation{
+    position: absolute;
+    background-color: $white;
+    border: solid black 1px;
+    padding: 16px;
+    border-radius: 8px;
 }

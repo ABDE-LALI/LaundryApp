@@ -63,12 +63,17 @@ class ArticleController extends Controller
     public function update(Request $request)
     {
         // Validate incoming form data
+
         $request->validate([
             'id' => 'required|exists:articles,id', // Ensure the ID exists
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'gender' => 'required|in:female,male,home',
-            'image' => 'nullable|image|max:2048', // Validate image file
+            'image' => 'nullable|image|max:2048', // Max 2MB
+            'description' => 'nullable|string',
+            'ironPrice' => 'required|numeric',
+            'washPrice' => 'required|numeric',
+            'dryPrice' => 'required|numeric',
+            'paintPrice' => 'required|numeric',
         ]);
 
         // Find the article or fail
@@ -87,6 +92,18 @@ class ArticleController extends Controller
 
         // Save the updated article
         $article->save();
+        $articleService = ArticleService::where('article_id', $article->id)->where('service_id', 1)->first();
+        $articleService->price = $request->ironPrice;
+        $articleService->save();
+        $articleService = ArticleService::where('article_id', $article->id)->where('service_id', 2)->first();
+        $articleService->price = $request->washPrice;
+        $articleService->save();
+        $articleService = ArticleService::where('article_id', $article->id)->where('service_id', 3)->first();
+        $articleService->price = $request->dryPrice;
+        $articleService->save();
+        $articleService = ArticleService::where('article_id', $article->id)->where('service_id', 4)->first();
+        $articleService->price = $request->paintPrice;
+        $articleService->save();
 
         return redirect()->back()->with('success', 'Article updated successfully.');
     }
