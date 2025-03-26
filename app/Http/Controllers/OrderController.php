@@ -20,7 +20,7 @@ class OrderController extends Controller
 
         $articles = Article::on($connection)->with('services')->get();
         $services = Service::on($connection)->get();
-        $ticket_id = Ticket::on($connection)->max('id') ?? 1;
+        $ticket_id = Ticket::on($connection)->max('id') + 1;
         return Inertia::render('Serve/Create', [
             'articles' => Article::with('services')->get(),
             'services' => Service::all(),

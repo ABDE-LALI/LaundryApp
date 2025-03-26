@@ -3,6 +3,8 @@ import Dashboard from "../Dashboard";
 import React, { useState, useRef, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import VirtualKeyboard from '../../Components/VirtualKeyboard';
+import Ordersvalidation from "@/Components/Ordersvalidation";
+import OrderSummary from '@/Components/OrderSummary'; // Import the new OrderSummary component
 
 export default function Create() {
     const { articles, services, ticket_id } = usePage().props;
@@ -16,82 +18,50 @@ export default function Create() {
     const [editingIndex, setEditingIndex] = useState(null);
     const [quantity, setQuantity] = useState('');
     const [brand, setBrand] = useState('');
-    const [paidAmount, setPaidAmount] = useState('');
+    const [paidAmount, setPaidAmount] = useState(0);
     const [activeInputOrder, setActiveInputOrder] = useState(null); // For order details window
     const [activeInputConfirm, setActiveInputConfirm] = useState(null); // For confirmation modal
     const [keyboardLayoutOrder, setKeyboardLayoutOrder] = useState('numeric'); // For order details window
     const [keyboardLayoutConfirm, setKeyboardLayoutConfirm] = useState('numeric'); // For confirmation modal
     const keyboardRefOrder = useRef(null); // For order details window
     const keyboardRefConfirm = useRef(null); // For confirmation modal
-    const [billstatus, setBillStatus] = useState(0);
+    const [billstatus, setBillStatus] = useState('unpaid');
     const [ordersconf, setOrdersConf] = useState(false);
 
     // Color options (culturally inspired)
     const colorOptions = [
-        // Red (from the Moroccan flag, symbolizing bravery and strength)
-        [{ name: 'Ḥamra', value: '#C1272D' }], // Red in Darija
-        // Dark Red (inspired by Berber carpets)
-        [{ name: 'Ḥamra Mġlqa', value: '#800000' }], // Dark Red in Darija
-        // Burgundy (inspired by Moroccan wine and textiles)
-        [{ name: 'Bordu', value: '#800020' }], // Burgundy in Darija
-        // Green (from the Moroccan flag, symbolizing joy, peace, and Islam)
-        [{ name: 'Kḍra', value: '#006233' }], // Green in Darija
-        // Light Green (inspired by date palm oases)
-        [{ name: 'Kḍra Fatiḥa', value: '#00FF00' }], // Light Green in Darija
-        // Olive (inspired by Moroccan olive groves)
-        [{ name: 'Zaytouni', value: '#808000' }], // Olive Green in Darija
-        // Emerald Green (Moroccan precious stones)
-        [{ name: 'Zumurrudi', value: '#50C878' }], // Emerald Green in Darija
-        // Blue (inspired by Chefchaouen, the Blue City)
-        [{ name: 'Zrq', value: '#4682B4' }], // Blue in Darija
-        // Navy Blue (deep ocean and Moroccan sky)
-        [{ name: 'Zrq Gamiq', value: '#000080' }], // Navy in Darija
-        // Deep Marine Blue
-        [{ name: 'Bloumarin', value: '#003366' }], // Deep Marine Blue in Darija
-        // Teal (Essaouira’s boats)
-        [{ name: 'Zrq Kḍra', value: '#008080' }], // Teal in Darija
-        // Cyan (inspired by the Mediterranean coast)
-        [{ name: 'Smawi', value: '#00FFFF' }], // Cyan in Darija
-        // White (Casablanca, the White City)
-        [{ name: 'Biyḍa', value: '#FFFFFF' }], // White in Darija
-        // Gray (Atlas Mountains and rocky landscapes)
-        [{ name: 'Rmadi', value: '#808080' }], // Gray in Darija
-        // Black (dark stones of the Atlas Mountains)
-        [{ name: 'Kḥal', value: '#000000' }], // Black in Darija
-        // Yellow (golden sands of the Sahara)
-        [{ name: 'Ṣfṛa', value: '#FFD700' }], // Yellow in Darija
-        // Gold (Moroccan décor)
-        [{ name: 'Dhahabi', value: '#DAA520' }], // Gold in Darija
-        // Silver (traditional Moroccan jewelry)
-        [{ name: 'Fiḍḍi', value: '#C0C0C0' }], // Silver in Darija
-        // Orange (Moroccan oranges and sunsets)
-        [{ name: 'Lmuni', value: '#FFA500' }], // Orange in Darija
-        // Dark Orange (burnt orange of Moroccan spices)
-        [{ name: 'Lmuni Mġlq', value: '#FF8C00' }], // Dark Orange in Darija
-        // Peach (soft Moroccan clay walls)
-        [{ name: 'Khukhi', value: '#FFDAB9' }], // Peach in Darija
-        // Pink (Marrakech, the Rose City)
-        [{ name: 'Wardiyya', value: '#FF69B4' }], // Pink in Darija
-        // Soft Pink (Moroccan blush tones)
-        [{ name: 'Wardiyya Fatiḥa', value: '#FFC0CB' }], // Light Pink in Darija
-        // Purple (Moroccan textiles)
-        [{ name: 'Banafsaji', value: '#800080' }], // Purple in Darija
-        // Dark Purple (inspired by Moroccan dye)
-        [{ name: 'Banafsaji Mġlq', value: '#4B0082' }], // Dark Purple in Darija
-        // Fanidi (replacing Magenta, inspired by Moroccan vibrant fabrics)
-        [{ name: 'Fanidi', value: '#FF00FF' }], // Magenta (Fanidi in Darija)
-        // Brown (terracotta kasbahs and Moroccan earth)
-        [{ name: 'Qahwi', value: '#8B4513' }], // Brown in Darija
-        // Beige (desert dunes and Moroccan architecture)
-        [{ name: 'Bej', value: '#F5F5DC' }], // Beige in Darija
-        // Turquoise (Tafilalt oases and Moroccan tiles)
-        [{ name: 'Turkuzi', value: '#40E0D0' }], // Turquoise in Darija
-        // Lavender (Moroccan flower fields)
-        [{ name: 'Lavanda', value: '#E6E6FA' }], // Lavender in Darija
-        // Dark Gray (inspired by Moroccan basalt stones)
-        [{ name: 'Rmadi Mġlq', value: '#505050' }], // Dark Gray in Darija
-        // Light Gray (soft Moroccan limestone)
-        [{ name: 'Rmadi Fatiḥ', value: '#D3D3D3' }], // Light Gray in Darija
+        [{ name: 'Ḥamra', value: '#C1272D' }],
+        [{ name: 'Ḥamra Mġlqa', value: '#800000' }],
+        [{ name: 'Bordu', value: '#800020' }],
+        [{ name: 'Kḍra', value: '#006233' }],
+        [{ name: 'Kḍra Fatiḥa', value: '#00FF00' }],
+        [{ name: 'Zaytouni', value: '#808000' }],
+        [{ name: 'Zumurrudi', value: '#50C878' }],
+        [{ name: 'Zrq', value: '#4682B4' }],
+        [{ name: 'Zrq Gamiq', value: '#000080' }],
+        [{ name: 'Bloumarin', value: '#003366' }],
+        [{ name: 'Zrq Kḍra', value: '#008080' }],
+        [{ name: 'Smawi', value: '#00FFFF' }],
+        [{ name: 'Biyḍa', value: '#FFFFFF' }],
+        [{ name: 'Rmadi', value: '#808080' }],
+        [{ name: 'Kḥal', value: '#000000' }],
+        [{ name: 'Ṣfṛa', value: '#FFD700' }],
+        [{ name: 'Dhahabi', value: '#DAA520' }],
+        [{ name: 'Fiḍḍi', value: '#C0C0C0' }],
+        [{ name: 'Lmuni', value: '#FFA500' }],
+        [{ name: 'Lmuni Mġlq', value: '#FF8C00' }],
+        [{ name: 'Khukhi', value: '#FFDAB9' }],
+        [{ name: 'Wardiyya', value: '#FF69B4' }],
+        [{ name: 'Wardiyya Fatiḥa', value: '#FFC0CB' }],
+        [{ name: 'Banafsaji', value: '#800080' }],
+        [{ name: 'Banafsaji Mġlq', value: '#4B0082' }],
+        [{ name: 'Fanidi', value: '#FF00FF' }],
+        [{ name: 'Qahwi', value: '#8B4513' }],
+        [{ name: 'Bej', value: '#F5F5DC' }],
+        [{ name: 'Turkuzi', value: '#40E0D0' }],
+        [{ name: 'Lavanda', value: '#E6E6FA' }],
+        [{ name: 'Rmadi Mġlq', value: '#505050' }],
+        [{ name: 'Rmadi Fatiḥ', value: '#D3D3D3' }],
     ];
 
     // Handle virtual keyboard input for order details window (Quantity, Brand)
@@ -240,8 +210,8 @@ export default function Create() {
                 {
                     quantity: data.reduce((acc, item) => acc + item.quantity, 0),
                     total_price: total_price,
-                    paid_amount: parseFloat(paidAmount) || 0,
-                    status: billstatus,
+                    paid_amount: total_price <= parseFloat(paidAmount) ? total_price : parseFloat(paidAmount) || 0,
+                    payment_status:(total_price <= parseFloat(paidAmount)) ? "paid" : billstatus,
                 },
                 {
                     onSuccess: () => {
@@ -252,7 +222,7 @@ export default function Create() {
                                 onSuccess: () => {
                                     setOrderItems([]);
                                     setPaidAmount('');
-                                    setBillStatus(0);
+                                    setBillStatus('unpaid');
                                     setOrdersConf(false);
                                     setActiveInputConfirm(null);
                                     alert('Commandes soumises avec succès !');
@@ -275,7 +245,6 @@ export default function Create() {
 
     // Compute total price dynamically
     const totalBillPrice = orderItems.reduce((acc, item) => acc + (item.totalPrice || 0), 0);
-    const rest = totalBillPrice - (parseFloat(paidAmount) || 0);
 
     // Handle click outside for order details window
     const orderKeyboardContainerRef = useRef(null);
@@ -368,14 +337,14 @@ export default function Create() {
                                     readOnly
                                 />
                                 {/* Virtual Keyboard for Order Details */}
-                                    <div className="virtual-keyboard-container" ref={orderKeyboardContainerRef}>
-                                        <VirtualKeyboard
-                                            keyboardRef={keyboardRefOrder}
-                                            onChangeAll={onKeyboardChangeOrder}
-                                            initialLayout={keyboardLayoutOrder}
-                                            inputName={activeInputOrder}
-                                        />
-                                    </div>
+                                <div className="virtual-keyboard-container" ref={orderKeyboardContainerRef}>
+                                    <VirtualKeyboard
+                                        keyboardRef={keyboardRefOrder}
+                                        onChangeAll={onKeyboardChangeOrder}
+                                        initialLayout={keyboardLayoutOrder}
+                                        inputName={activeInputOrder}
+                                    />
+                                </div>
                             </div>
                             <div className="order-detail">
                                 <label className="label">Services</label>
@@ -435,99 +404,33 @@ export default function Create() {
                         </div>
                     )}
 
-                    {/* Order Summary */}
-                    <div className="order-summary">
-                        <h3 className="order-title text-lg font-semibold mb-2">Commandes en cours</h3>
-                        <div className="order-table">
-                            <table className="min-w-full border-collapse border border-gray-300">
-                                <caption>Ticket Id: {ticket_id + 1}</caption>
-                                <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Article</th>
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Service</th>
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Prix</th>
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Quantité</th>
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Prix Total (DH)</th>
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Couleur</th>
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Marque</th>
-                                        <th className="border border-gray-300 px-1 py-1 text-center text-sm font-medium text-gray-700">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {orderItems.map((item, index) => (
-                                        <tr key={index} className="hover:bg-gray-50">
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.article.name}</td>
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.service.name}</td>
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">
-                                                {item.article.price ? `${item.article.price} DH` : 'N/A'}
-                                            </td>
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">x{item.quantity}</td>
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">
-                                                {item.totalPrice ? `${item.totalPrice.toFixed(2)} DH` : 'N/A'}
-                                            </td>
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.color}</td>
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">{item.brand}</td>
-                                            <td className="border border-gray-300 px-1 py-1 text-sm text-gray-600">
-                                                <button onClick={() => handleEdit(index)} className="edit-button mr-2">
-                                                    Modifier
-                                                </button>
-                                                <button onClick={() => handleDelete(index)} className="delete-button">
-                                                    Supprimer
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            <button onClick={() => setOrdersConf(true)} disabled={orderItems.length === 0}>Confirm</button>
-                        </div>
-                    </div>
+                    {/* Order Summary - Replaced with OrderSummary Component */}
+                    <OrderSummary
+                        orderItems={orderItems}
+                        ticketId={ticket_id}
+                        handleEdit={handleEdit}
+                        handleDelete={handleDelete}
+                        setOrdersConf={setOrdersConf}
+                    />
 
                     {/* Confirmation Modal */}
                     {ordersconf && (
-                        <div className="orders-confirmation">
-                            <div className="modal-content">
-                                <strong>Total Price: {totalBillPrice.toFixed(2)} DH</strong><br />
-                                <label>Bill Status: </label>
-                                <select value={billstatus} onChange={(e) => setBillStatus(e.target.value)}>
-                                    <option value='1'>Non Payé</option>
-                                    <option value="2">Payé</option>
-                                    <option value="0">Paye quelque</option>
-                                </select><br />
-                                {(Number(billstatus)== 0)&&<><label>Paid Amount: </label>
-                                <input
-                                    type="text"
-                                    value={paidAmount}
-                                    onFocus={handlePaidAmountFocus}
-                                    readOnly
-                                    name="paid_amount"
-                                    id="paid_amount"
-                                    placeholder="Enter paid amount"
-                                /></>}<br />
-                                {/* Virtual Keyboard for Confirmation Modal */}
-                                    <div className="virtual-keyboard-container" ref={confirmKeyboardContainerRef}>
-                                        <VirtualKeyboard
-                                            keyboardRef={keyboardRefConfirm}
-                                            onChangeAll={onKeyboardChangeConfirm}
-                                            initialLayout={keyboardLayoutConfirm}
-                                            inputName={activeInputConfirm}
-                                        />
-                                    </div>
-                                <strong>Rest: {rest.toFixed(2)} DH</strong><br />
-                                <button className="bg-green-400 p-1 mt-2" onClick={valider}>Valider</button>
-                                <button
-                                    className="bg-red-400 p-1 mt-2 ml-2"
-                                    onClick={() => {
-                                        setOrdersConf(false);
-                                        setPaidAmount('');
-                                        setBillStatus(0);
-                                        setActiveInputConfirm(null);
-                                    }}
-                                >
-                                    Annuler
-                                </button>
-                            </div>
-                        </div>
+                        <Ordersvalidation
+                            totalBillPrice={totalBillPrice}
+                            billstatus={billstatus}
+                            setBillStatus={setBillStatus}
+                            paidAmount={paidAmount}
+                            setPaidAmount={setPaidAmount}
+                            valider={valider}
+                            setOrdersConf={setOrdersConf}
+                            setActiveInputConfirm={setActiveInputConfirm}
+                            handlePaidAmountFocus={handlePaidAmountFocus}
+                            onKeyboardChangeConfirm={onKeyboardChangeConfirm}
+                            keyboardRefConfirm={keyboardRefConfirm}
+                            keyboardLayoutConfirm={keyboardLayoutConfirm}
+                            activeInputConfirm={activeInputConfirm}
+                            confirmKeyboardContainerRef={confirmKeyboardContainerRef}
+                        />
                     )}
                 </div>
             </div>

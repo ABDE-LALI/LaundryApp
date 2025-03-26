@@ -17,12 +17,24 @@ class TicketController extends Controller
         $request->validate([
             'total_price' => 'required',
             'quantity' => 'required',
+            'payment_status' => 'required',
         ]);
-        // return $request->input('total_price');
          $ticket = Ticket::create([
             // Add any required fields, e.g., user_id, status
             'total_price' => $request->input('total_price'),
             'quantity' => $request->input('quantity'),
+            'payment_status' => $request->input('payment_status'),
+            'paid_amount' => $request->input('payment_status') === 'paid'? $request->input('total_price') : $request->input('paid_amount'),
         ]);
     }
+    public function getRecentTickets()
+{
+    $tickets = Ticket::with('orders') // Eager load orders
+        ->latest()
+        ->take(9)
+        ->get();
+    // echo $tickets;
+    return response()->json($tickets);
+}
+
 }

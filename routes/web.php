@@ -39,9 +39,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //this page contains the form to create a new order
     Route::get('/serve/create', [OrderController::class, 'index'])->name('serve.create');
     //this page contains the history of recent orders
-    Route::get('/serve/history', function () {
-        return Inertia::render('Serve/History');
-    })->name('serve.history');
+    Route::get('/serve/search', function () {
+        return Inertia::render('Serve/Search');
+    })->name('serve.search');  
+    //this page contains the history of recent tickets
+    Route::get('/serve/get-recent-tickets', [TicketController::class, 'getRecentTickets'])
+        ->name('serve.getRecentTickets');
     //this page contains the form to edit a specific order
     Route::get('/serve/{order?}/edit', function () {
         return Inertia::render('Serve/Edit');
