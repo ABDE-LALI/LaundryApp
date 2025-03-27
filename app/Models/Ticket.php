@@ -27,7 +27,7 @@ class Ticket extends Model
     // Many-to-many relationship with Service
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'orders', 'bill_id', 'service_id');
+        return $this->belongsToMany(Service::class, 'orders', 'ticket_id', 'service_id');
     }
     public function getTotalPriceAttribute()
     {

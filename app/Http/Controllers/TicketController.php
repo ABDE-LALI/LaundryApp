@@ -36,5 +36,12 @@ class TicketController extends Controller
     // echo $tickets;
     return response()->json($tickets);
 }
+public function getTicket($id)
+{
+
+    $ticket = Ticket::with('orders')->with('articles')->with('services')->find($id);
+    return response()->json($ticket);
+
+}
 
 }

@@ -45,6 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //this page contains the history of recent tickets
     Route::get('/serve/get-recent-tickets', [TicketController::class, 'getRecentTickets'])
         ->name('serve.getRecentTickets');
+    Route::get('/serve/get-ticket/{id}', [TicketController::class, 'getTicket'])
+        ->name('serve.getTicket');
     //this page contains the form to edit a specific order
     Route::get('/serve/{order?}/edit', function () {
         return Inertia::render('Serve/Edit');

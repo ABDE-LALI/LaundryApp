@@ -14,7 +14,7 @@ class Service extends Model
     ];
 
     // Many-to-many relationship with Bill
-    public function bills()
+    public function tickets()
     {
         return $this->belongsToMany(Ticket::class);
     }

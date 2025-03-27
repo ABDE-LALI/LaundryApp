@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
             $table->string('brand')->nullable();
             $table->string('color')->nullable();
+            $table->enum('order_status',['received', 'delivered'])->default('received');
         });
     }
 
