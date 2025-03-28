@@ -67,6 +67,24 @@ class OrderController extends Controller
         // Return a success response (Inertia will handle it)
         return redirect()->back()->with('message', 'Commandes soumises avec succès !');
     }
+    public function setStatus($ticketId, $status)
+    {
+        $order = Order::find($ticketId);
+        if (!$order) {
+            return response()->json(['errors' => ['order' => 'Ticket not found']], 422);
+        }
+
+        // Validate status (example)
+        $validStatuses = ['received', 'delivered'];
+        if (!in_array($status, $validStatuses)) {
+            return response()->json(['errors' => ['status' => 'Invalid status value']], 422);
+        }
+
+        $order->order_status = $status;
+        $order->save();
+
+        return response()->json(['message' => 'Order status updated successfully']);
+    }
     // public function store(Request $request)
     // {
     //     // Determine the database connection based on environment or request

@@ -1,80 +1,80 @@
 import { useEffect, useState } from "react";
 import Dashboard from "../Dashboard";
-import { router } from "@inertiajs/react";
 import axios from "axios";
 
-// Reusable component to render a single ticket
-const TicketCard = ({ ticket, showArticles = false }) => {
+const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrderStatusUpdate }) => {
     return (
-        <div className="ticket border rounded-lg p-4 mb-4 shadow-sm bg-white">
-            <h4 className="text-lg font-semibold">Ticket ID: {ticket.id}</h4>
-            <p className="text-gray-600">Date: {ticket.created_at}</p>
-            <p className="text-gray-600">Status: {ticket.status}</p>
-            <p className="text-gray-600">Total Price: {ticket.total_price} DH</p>
-            <p className="text-gray-600">Paid Amount: {ticket.paid_amount} DH</p>
+        <div className="ticket bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+            <h4 className="text-xl font-semibold text-gray-800 mb-2">Ticket ID: {ticket.id}</h4>
+            <p className="text-gray-500">Date: {ticket.created_at}</p>
+            <p className="text-gray-500">Status: {ticket.status}</p>
+            <p className="text-gray-500">Total Price: <span className="font-medium">{ticket.total_price} DH</span></p>
+            <p className="text-gray-500">Paid Amount: <span className="font-medium">{ticket.paid_amount} DH</span></p>
 
-            {/* Conditionally render articles if showArticles is true (for searched ticket) */}
+            <div className="mt-4 flex gap-2">
+                <button
+                    onClick={() => onTicketStatusUpdate(ticket.id, "delivered")}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600"
+                >
+                    Mark as Delivered
+                </button>
+                <button
+                    onClick={() => onTicketStatusUpdate(ticket.id, "received")}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                >
+                    Mark as Received
+                </button>
+            </div>
+
             {showArticles && ticket.orders && ticket.articles && (
-                <div className="articles mt-4">
-                    <h5 className="text-md font-medium">Articles:</h5>
+                <div className="mt-6 border-t pt-4">
+                    <h5 className="text-md font-medium text-gray-800 mb-2">Articles</h5>
                     {ticket.orders.map((order, index) => {
-                        // Find the article associated with this order
-                        const article = ticket.articles.find(
-                            (article) => article.id === order.article_id
-                        );
-                        // Find the service associated with this order
-                        const service = ticket.services.find(
-                            (service) => service.id === order.service_id
-                        );
+                        const article = ticket.articles.find((a) => a.id === order.article_id);
+                        const service = ticket.services.find((s) => s.id === order.service_id);
 
-                        if (!article) return null; // Skip if article not found
+                        if (!article) return null;
 
                         return (
-                            <div
-                                key={index}
-                                className="article border-t pt-2 mt-2 text-sm text-gray-700"
-                            >
-                                <p>Article ID: {article.id}</p>
-                                <p>Name: {article.name}</p>
-                                <p>Brand: {order.brand}</p>
+                            <div key={index} className="bg-gray-50 p-3 rounded-lg shadow-sm mt-2">
+                                <p><strong>{article.name}</strong> (Brand: {order.brand})</p>
                                 <p>Color: {order.color}</p>
-                                <p>Price (unit): {order.price ? `${order.price} DH` : "N/A"}</p>
-                                <p>Quantity: {order.quantity}</p>
-                                <p>
-                                    Service: {service ? service.name : "N/A"}
-                                    {service && service.description && (
-                                        <span className="text-gray-500"> ({service.description})</span>
-                                    )}
-                                </p>
+                                <p>Price: {order.price ? `${order.price} DH` : "N/A"} | Quantity: {order.quantity}</p>
+                                <p>Service: {service ? service.name : "N/A"}</p>
+                                <p>Status: {order.order_status}</p>
+                                <div className="mt-2 flex gap-2">
+                                    <button
+                                        onClick={() => onOrderStatusUpdate(order.id, "delivered")}
+                                        className="px-3 py-1 text-sm text-white bg-green-500 rounded-lg hover:bg-green-600"
+                                    >
+                                        Delivered
+                                    </button>
+                                    <button
+                                        onClick={() => onOrderStatusUpdate(order.id, "received")}
+                                        className="px-3 py-1 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                                    >
+                                        Received
+                                    </button>
+                                </div>
                             </div>
                         );
                     })}
                 </div>
             )}
-
-            <button
-                onClick={() => router.visit(route("serve.show", { id: ticket.id }))}
-                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-                View Details
-            </button>
         </div>
     );
 };
 
 export default function Search() {
-    // State for search input, recent tickets, searched ticket, and loading
     const [searchId, setSearchId] = useState("");
     const [recentTickets, setRecentTickets] = useState([]);
     const [searchedTicket, setSearchedTicket] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch recent tickets on component mount
     useEffect(() => {
         fetchRecentTickets();
     }, []);
 
-    // Fetch recent tickets from the API
     const fetchRecentTickets = async () => {
         setIsLoading(true);
         try {
@@ -82,17 +82,16 @@ export default function Search() {
             setRecentTickets(response.data || []);
         } catch (error) {
             console.error("Error fetching recent tickets:", error);
-            alert("Erreur lors de la récupération des tickets récents.");
+            alert("Error fetching recent tickets.");
             setRecentTickets([]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Search for a ticket by ID
     const handleSearch = async (id) => {
-        if (!id.trim()) {
-            alert("Veuillez entrer un ID de commande valide.");
+        if (!(id + " ").trim()) {
+            alert("Please enter a valid ticket ID.");
             return;
         }
 
@@ -101,24 +100,45 @@ export default function Search() {
             const response = await axios.get(`/serve/get-ticket/${id}`);
             if (response.data) {
                 setSearchedTicket(response.data);
-                console.log("Searched Ticket:", response.data);
-                
             } else {
-                alert("Aucun ticket trouvé avec cet ID.");
+                alert("No ticket found with this ID.");
                 setSearchedTicket(null);
-                await fetchRecentTickets(); // Refresh recent tickets if no ticket is found
+                await fetchRecentTickets();
             }
         } catch (error) {
             console.error("Error searching for ticket:", error);
-            alert("Erreur lors de la recherche du ticket.");
+            alert("Error searching for ticket.");
             setSearchedTicket(null);
-            await fetchRecentTickets(); // Refresh recent tickets on error
+            await fetchRecentTickets();
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Clear the search and reset to recent tickets
+    const setOrderStatus = async (orderId, status) => {
+        setIsLoading(true);
+        try {
+            await axios.put(`/serve/set-order-status/${orderId}/${status}`)
+                .then(() => {
+                    alert("Status updated successfully.");
+                    if (searchedTicket) {
+                        handleSearch(searchedTicket.id);
+                    } else {
+                        fetchRecentTickets();
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error updating status:", error);
+                    alert(error.response?.data?.message || "Failed to update status.");
+                });
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("Error updating status.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const clearSearch = () => {
         setSearchedTicket(null);
         setSearchId("");
@@ -127,51 +147,49 @@ export default function Search() {
 
     return (
         <Dashboard>
-            <div className="search p-6">
-                {/* Search Form */}
-                <div className="search-form mb-6 flex items-center gap-3">
+            <div className="search p-8 max-w-4xl mx-auto">
+                <div className="search-form mb-6 flex gap-3">
                     <input
                         type="text"
-                        name="search"
-                        id="search"
-                        placeholder="Entrez l'ID de la commande"
+                        placeholder="Enter Ticket ID"
                         value={searchId}
                         onChange={(e) => setSearchId(e.target.value)}
-                        className="border rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="border rounded-lg px-4 py-2 w-64 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                         onClick={() => handleSearch(searchId)}
                         disabled={isLoading}
-                        className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ${
+                        className={`bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ${
                             isLoading ? "opacity-50 cursor-not-allowed" : ""
                         }`}
                     >
-                        {isLoading ? "Recherche..." : "Rechercher"}
+                        {isLoading ? "Searching..." : "Search"}
                     </button>
                     {searchedTicket && (
                         <button
                             onClick={clearSearch}
-                            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
                         >
-                            Afficher les tickets récents
+                            Show Recent Tickets
                         </button>
                     )}
                 </div>
 
-                {/* Tickets Display */}
                 <div className="recent-tickets">
                     {isLoading ? (
-                        <p className="text-gray-600">Chargement...</p>
+                        <p className="text-gray-600 text-center">Loading...</p>
                     ) : searchedTicket ? (
-                        // Display the searched ticket with articles
-                        <TicketCard ticket={searchedTicket} showArticles={true} />
+                        <TicketCard ticket={searchedTicket} showArticles={true} onOrderStatusUpdate={setOrderStatus} />
                     ) : recentTickets.length === 0 ? (
-                        // Display message if no recent tickets
-                        <p className="text-gray-600">Aucun ticket trouvé.</p>
+                        <p className="text-gray-600 text-center">No tickets found.</p>
                     ) : (
-                        // Display recent tickets without articles
-                        recentTickets.map((ticket, index) => (
-                            <TicketCard key={index} ticket={ticket} showArticles={false} />
+                        recentTickets.map((ticket) => (
+                            <TicketCard
+                                key={ticket.id}
+                                ticket={ticket}
+                                showArticles={false}
+                                onOrderStatusUpdate={setOrderStatus}
+                            />
                         ))
                     )}
                 </div>

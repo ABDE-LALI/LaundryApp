@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Ticket;
 
 class Order extends Model
 {
-    protected $fillable = ['ticket_id', 'article_id', 'service_id', 'quantity', 'price', 'brand', 'color'];
+    protected $fillable = ['ticket_id', 'article_id', 'service_id', 'quantity', 'price', 'brand', 'color', 'order_status'];
 
     public function bill()
     {

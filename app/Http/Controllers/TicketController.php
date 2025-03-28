@@ -12,36 +12,66 @@ class TicketController extends Controller
         $tickets = Ticket::all();
         return view('tickets.index', compact('tickets'));
     }
+
     public function storeTicket(Request $request)
     {
         $request->validate([
-            'total_price' => 'required',
-            'quantity' => 'required',
-            'payment_status' => 'required',
+            'total_price' => 'required|numeric',
+            'quantity' => 'required|integer',
+            'payment_status' => 'required|in:paid,unpaid',
         ]);
-         $ticket = Ticket::create([
-            // Add any required fields, e.g., user_id, status
+
+        $ticket = Ticket::create([
             'total_price' => $request->input('total_price'),
             'quantity' => $request->input('quantity'),
             'payment_status' => $request->input('payment_status'),
-            'paid_amount' => $request->input('payment_status') === 'paid'? $request->input('total_price') : $request->input('paid_amount'),
+            'paid_amount' => $request->input('payment_status') === 'paid' 
+                ? $request->input('total_price') 
+                : $request->input('paid_amount', 0),
+            'status' => 'pending', // Default status
         ]);
+
+        return response()->json(['message' => 'Ticket created successfully', 'ticket' => $ticket], 201);
     }
+
     public function getRecentTickets()
-{
-    $tickets = Ticket::with('orders') // Eager load orders
-        ->latest()
-        ->take(9)
-        ->get();
-    // echo $tickets;
-    return response()->json($tickets);
-}
-public function getTicket($id)
-{
+    {
+        $tickets = Ticket::with(['orders', 'articles', 'services'])
+            ->latest()
+            ->take(9)
+            ->get();
 
-    $ticket = Ticket::with('orders')->with('articles')->with('services')->find($id);
-    return response()->json($ticket);
+        return response()->json($tickets);
+    }
 
-}
+    public function getTicket($id)
+    {
+        $ticket = Ticket::with(['orders', 'articles', 'services'])->find($id);
 
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+
+        return response()->json($ticket);
+    }
+
+    public function setStatus(Request $request, $ticketId, $status)
+    {
+        $ticket = Ticket::find($ticketId);
+
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+
+        // Validate status
+        $validStatuses = ['delivered', 'received'];
+        if (!in_array($status, $validStatuses)) {
+            return response()->json(['message' => 'Invalid status'], 400);
+        }
+
+        $ticket->status = $status;
+        $ticket->save();
+
+        return response()->json(['message' => 'Status updated successfully', 'ticket' => $ticket]);
+    }
 }

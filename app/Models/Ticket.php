@@ -11,7 +11,6 @@ class Ticket extends Model
         'quantity',
         'payment_status',
         'paid_amount',
-        'status',
     ];
 
     // Many-to-many relationship with Article
