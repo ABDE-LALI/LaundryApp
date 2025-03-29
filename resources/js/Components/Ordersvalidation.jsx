@@ -4,7 +4,7 @@ import VirtualKeyboard from './VirtualKeyboard';
 export default function Ordersvalidation({
     totalBillPrice, // Total price of the order (number)
     billstatus, // Current bill status: 'unpaid', 'paid', or 'paid_some' (string)
-    setBillStatus, // Function to update bill status
+    setBillPaymentStatus, // Function to update bill status
     paidAmount, // Amount paid by the customer (string)
     setPaidAmount, // Function to update paid amount
     valider, // Function to submit the order
@@ -39,7 +39,7 @@ export default function Ordersvalidation({
                         <label className="block text-sm font-medium text-gray-700 mb-1">Statut de la Facture:</label>
                         <select
                             value={billstatus}
-                            onChange={(e) => setBillStatus(e.target.value)}
+                            onChange={(e) => setBillPaymentStatus(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="unpaid">Non Payé</option>
@@ -100,7 +100,7 @@ export default function Ordersvalidation({
                             onClick={() => {
                                 setOrdersConf(false);
                                 setPaidAmount('');
-                                setBillStatus('unpaid');
+                                setBillPaymentStatus('unpaid');
                                 setActiveInputConfirm(null);
                             }}
                             className="px-4 py-2 bg-red-500 text-white rounded-md shadow-md hover:bg-red-600 transition-colors"

@@ -18,7 +18,8 @@ class TicketController extends Controller
         $request->validate([
             'total_price' => 'required|numeric',
             'quantity' => 'required|integer',
-            'payment_status' => 'required|in:paid,unpaid',
+            'payment_status' => 'required|in:paid,unpaid,paid_some',
+            'paid_amount' => 'nullable|numeric',
         ]);
 
         $ticket = Ticket::create([
@@ -31,7 +32,7 @@ class TicketController extends Controller
             'status' => 'pending', // Default status
         ]);
 
-        return response()->json(['message' => 'Ticket created successfully', 'ticket' => $ticket], 201);
+        return redirect()->back()->with('success', 'Ticket created successfully.');
     }
 
     public function getRecentTickets()
@@ -55,7 +56,7 @@ class TicketController extends Controller
         return response()->json($ticket);
     }
 
-    public function setStatus(Request $request, $ticketId, $status)
+    public function setStatus($ticketId, $status)
     {
         $ticket = Ticket::find($ticketId);
 
@@ -68,7 +69,7 @@ class TicketController extends Controller
         if (!in_array($status, $validStatuses)) {
             return response()->json(['message' => 'Invalid status'], 400);
         }
-
+        $ticket->payment_status = $status === 'delivered' ? 'paid' : 'unpaid';
         $ticket->status = $status;
         $ticket->save();
 

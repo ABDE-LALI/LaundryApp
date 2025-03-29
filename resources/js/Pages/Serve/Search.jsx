@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Dashboard from "../Dashboard";
 import axios from "axios";
+import VirtualKeyboard from "@/Components/VirtualKeyboard"; // Adjust the path based on your project structure
 
 const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrderStatusUpdate }) => {
     return (
@@ -70,10 +71,20 @@ export default function Search() {
     const [recentTickets, setRecentTickets] = useState([]);
     const [searchedTicket, setSearchedTicket] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [showKeyboard, setShowKeyboard] = useState(false);
+    const keyboardRef = useRef(null);
+    const inputRef = useRef(null);
 
     useEffect(() => {
         fetchRecentTickets();
     }, []);
+
+    useEffect(() => {
+        // Sync the keyboard's internal state with the searchId state
+        if (keyboardRef.current) {
+            keyboardRef.current.setInput(searchId, "searchId");
+        }
+    }, [searchId]);
 
     const fetchRecentTickets = async () => {
         setIsLoading(true);
@@ -96,6 +107,7 @@ export default function Search() {
         }
 
         setIsLoading(true);
+        setShowKeyboard(false);
         try {
             const response = await axios.get(`/serve/get-ticket/${id}`);
             if (response.data) {
@@ -138,22 +150,69 @@ export default function Search() {
             setIsLoading(false);
         }
     };
+    const setTicketStatus = async (ticketId, status) => {
+        setIsLoading(true);
+        try {
+            await axios.put(`/serve/set-ticket-status/${ticketId}/${status}`)
+                .then(() => {
+                    alert("Ticket Status updated successfully.");
+                    fetchRecentTickets();
+                })
+                .catch((error) => {
+                    console.error("Error updating status:", error);
+                    alert(error.response?.data?.message || "Failed to update the ticket status.");
+                });
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("Error updating ticket status.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const clearSearch = () => {
         setSearchedTicket(null);
         setSearchId("");
         fetchRecentTickets();
+        setShowKeyboard(false);
+    };
+
+    const handleKeyboardChange = (inputs) => {
+        setSearchId(inputs.searchId || "");
+    };
+
+    const handleInputFocus = () => {
+        setShowKeyboard(true);
+    };
+
+    const handleInputBlur = () => {
+        // Uncomment if you want the keyboard to hide on blur
+        // setShowKeyboard(false);
+    };
+
+    const handleKeyPress = (button) => {
+        if (button === "{enter}") {
+            handleSearch(searchId);
+        } else if (button === "{bksp}") {
+            // Handle backspace explicitly
+            setSearchId((prev) => prev.slice(0, -1));
+        }
     };
 
     return (
         <Dashboard>
             <div className="search p-8 max-w-4xl mx-auto">
-                <div className="search-form mb-6 flex gap-3">
+                <div className="search-form mb-6 flex gap-3 relative">
                     <input
+                        ref={inputRef}
                         type="text"
+                        name="searchId"
                         placeholder="Enter Ticket ID"
                         value={searchId}
                         onChange={(e) => setSearchId(e.target.value)}
+                        onFocus={handleInputFocus}
+                        onBlur={handleInputBlur}
+                        readOnly
                         className="border rounded-lg px-4 py-2 w-64 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
@@ -162,6 +221,7 @@ export default function Search() {
                         className={`bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ${
                             isLoading ? "opacity-50 cursor-not-allowed" : ""
                         }`}
+                        aria-label="Search for ticket by ID"
                     >
                         {isLoading ? "Searching..." : "Search"}
                     </button>
@@ -169,9 +229,21 @@ export default function Search() {
                         <button
                             onClick={clearSearch}
                             className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                            aria-label="Show recent tickets"
                         >
                             Show Recent Tickets
                         </button>
+                    )}
+                    {showKeyboard && (
+                        <div className="absolute top-14 left-0 z-10 w-full max-w-md">
+                            <VirtualKeyboard
+                                keyboardRef={keyboardRef}
+                                onChangeAll={handleKeyboardChange}
+                                onKeyPress={handleKeyPress}
+                                initialLayout="numeric"
+                                inputName="searchId"
+                            />
+                        </div>
                     )}
                 </div>
 
@@ -179,7 +251,7 @@ export default function Search() {
                     {isLoading ? (
                         <p className="text-gray-600 text-center">Loading...</p>
                     ) : searchedTicket ? (
-                        <TicketCard ticket={searchedTicket} showArticles={true} onOrderStatusUpdate={setOrderStatus} />
+                        <TicketCard ticket={searchedTicket} showArticles={true} onOrderStatusUpdate={setOrderStatus} onTicketStatusUpdate={setTicketStatus} />
                     ) : recentTickets.length === 0 ? (
                         <p className="text-gray-600 text-center">No tickets found.</p>
                     ) : (
@@ -188,6 +260,7 @@ export default function Search() {
                                 key={ticket.id}
                                 ticket={ticket}
                                 showArticles={false}
+                                onTicketStatusUpdate={setTicketStatus}
                                 onOrderStatusUpdate={setOrderStatus}
                             />
                         ))

@@ -67,9 +67,9 @@ class OrderController extends Controller
         // Return a success response (Inertia will handle it)
         return redirect()->back()->with('message', 'Commandes soumises avec succès !');
     }
-    public function setStatus($ticketId, $status)
+    public function setStatus($orderId, $status)
     {
-        $order = Order::find($ticketId);
+        $order = Order::find($orderId);
         if (!$order) {
             return response()->json(['errors' => ['order' => 'Ticket not found']], 422);
         }
@@ -85,6 +85,61 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Order status updated successfully']);
     }
+    public function getStatistics()
+    {
+        $totalTickets = Ticket::count();
+        $totalOrders = Order::count();
+        $paidTickets = Ticket::where('payment_status', 'paid')->count();
+        $unpaidTickets = Ticket::where('payment_status', 'unpaid')->count();
+        $ticketStatusData = Ticket::selectRaw('status, COUNT(*) as value')
+            ->groupBy('status')
+            ->get()
+            ->map(fn($item) => ['name' => ucfirst($item->status), 'value' => $item->value]);
+        $paymentStatusData = Ticket::selectRaw('payment_status, COUNT(*) as value')
+            ->groupBy('payment_status')
+            ->get()
+            ->map(fn($item) => ['name' => ucfirst($item->payment_status), 'value' => $item->value]);
+
+        $stats = compact(
+            'totalTickets',
+            'totalOrders',
+            'paidTickets',
+            'unpaidTickets',
+            'ticketStatusData',
+            'paymentStatusData'
+        );
+
+        return Inertia::render('Serve/Statistics', [
+            'stats' => $stats,
+        ]);
+    }
+
+    // For /serve/statistics-data - Returns JSON for dynamic updates
+    public function getStatisticsJson()
+    {
+        $totalTickets = Ticket::count();
+        $totalOrders = Order::count();
+        $paidTickets = Ticket::where('payment_status', 'paid')->count();
+        $unpaidTickets = Ticket::where('payment_status', 'unpaid')->count();
+        $ticketStatusData = Ticket::selectRaw('status, COUNT(*) as value')
+            ->groupBy('status')
+            ->get()
+            ->map(fn($item) => ['name' => ucfirst($item->status), 'value' => $item->value]);
+        $paymentStatusData = Ticket::selectRaw('payment_status, COUNT(*) as value')
+            ->groupBy('payment_status')
+            ->get()
+            ->map(fn($item) => ['name' => ucfirst($item->payment_status), 'value' => $item->value]);
+
+        return response()->json(compact(
+            'totalTickets',
+            'totalOrders',
+            'paidTickets',
+            'unpaidTickets',
+            'ticketStatusData',
+            'paymentStatusData'
+        ));
+    }
+
     // public function store(Request $request)
     // {
     //     // Determine the database connection based on environment or request
@@ -105,3 +160,4 @@ class OrderController extends Controller
     //     return redirect()->route('serve.create');
     // }
 }
+

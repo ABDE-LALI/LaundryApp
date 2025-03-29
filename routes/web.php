@@ -27,22 +27,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('serve.getArticleServicePrice');
     Route::post('/serve/ticket/store', [TicketController::class, 'storeTicket'])->name('serve.ticket.store');
     Route::post('/serve/store', [OrderController::class, 'store'])->name('serve.store');
-    Route::get('/serve/statistics', function () {
-        return Inertia::render('Serve/Statistics');
-    })->name('serve.statistics');
+
+    // Updated to use OrderController::getStatistics and return Inertia response
+    Route::get('/serve/statistics', [OrderController::class, 'getStatistics'])
+        ->name('serve.statistics');
+
     Route::get('/serve/create', [OrderController::class, 'index'])->name('serve.create');
     Route::get('/serve/search', function () {
         return Inertia::render('Serve/Search');
     })->name('serve.search');
     Route::get('/serve/get-recent-tickets', [TicketController::class, 'getRecentTickets'])->name('serve.getRecentTickets');
     Route::get('/serve/get-ticket/{id}', [TicketController::class, 'getTicket'])->name('serve.getTicket');
-    Route::put('/serve/set-order-status/{ticketId}/{status}', [OrderController::class, 'setStatus'])->name('serve.setStatus');
+    Route::put('/serve/set-order-status/{orderId}/{status}', [OrderController::class, 'setStatus'])->name('serve.setStatus');
+    Route::put('/serve/set-ticket-status/{ticketId}/{status}', [TicketController::class, 'setStatus'])->name('serve.setStatus');
     Route::get('/serve/{order?}/edit', function () {
         return Inertia::render('Serve/Edit');
     })->name('serve.edit');
     Route::get('/serve/{order?}/delete', function () {
         return Inertia::render('Serve/Delete');
     })->name('serve.delete');
+
+    // Keep this for dynamic JSON fetching if needed
+    Route::get('/serve/statistics-data', [OrderController::class, 'getStatisticsJson'])->name('serve.statistics.data');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

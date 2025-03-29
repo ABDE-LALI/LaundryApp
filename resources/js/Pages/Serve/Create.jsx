@@ -25,7 +25,7 @@ export default function Create() {
     const [keyboardLayoutConfirm, setKeyboardLayoutConfirm] = useState('numeric');
     const keyboardRefOrder = useRef(null);
     const keyboardRefConfirm = useRef(null);
-    const [billstatus, setBillStatus] = useState('unpaid');
+    const [billstatus, setBillPaymentStatus] = useState('unpaid');
     const [ordersconf, setOrdersConf] = useState(false);
 
     // Color options (unchanged)
@@ -214,7 +214,7 @@ export default function Create() {
                                 onSuccess: () => {
                                     setOrderItems([]);
                                     setPaidAmount('');
-                                    setBillStatus('unpaid');
+                                    setBillPaymentStatus('unpaid');
                                     setOrdersConf(false);
                                     setActiveInputConfirm(null);
                                     alert('Commandes soumises avec succès !');
@@ -454,7 +454,7 @@ export default function Create() {
                         <Ordersvalidation
                             totalBillPrice={totalBillPrice}
                             billstatus={billstatus}
-                            setBillStatus={setBillStatus}
+                            setBillPaymentStatus={setBillPaymentStatus}
                             paidAmount={paidAmount}
                             setPaidAmount={setPaidAmount}
                             valider={valider}

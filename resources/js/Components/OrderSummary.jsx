@@ -40,15 +40,16 @@ export default function OrderSummary({
                                     <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200">
                                         {item.article.price ? `${item.article.price} DH` : 'N/A'}
                                     </td>
-                                    <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200">x{item.quantity}</td>
-                                    <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200">
+                                    <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200 truncate overflow-hidden whitespace-nowrap max-w-[50px]">x{item.quantity}</td>
+                                    <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200 truncate overflow-hidden whitespace-nowrap max-w-[90px]">
                                         {item.totalPrice ? `${item.totalPrice.toFixed(2)} DH` : 'N/A'}
                                     </td>
                                     <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200">{item.color}</td>
-                                    <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200 truncate overflow-hidden whitespace-nowrap max-w-[100px]">
+                                    <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200 truncate overflow-hidden whitespace-nowrap max-w-[70px]">
                                         {item.brand}
-                                    </td>                                  <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200">
-                                        <div className="flex justify-center gap-2">
+                                    </td>
+                                    <td className="px-1 py-2 text-sm text-gray-600 border-b border-gray-200">
+                                        <div className="flex flex-col justify-center gap-2">
                                             <button
                                                 onClick={() => handleEdit(index)}
                                                 className="px-2 py-1 text-sm bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 transition-colors"
