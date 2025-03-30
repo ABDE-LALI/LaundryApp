@@ -112,44 +112,46 @@ export default function EditArticleForm(props) {
     };
 
     return (
-            <div className="edit-form">
-                <Head title="Edit Article" />
-                <div className="container">
-                    <h1 className="title">Edit Article</h1>
-                    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="form-section">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 transition-opacity duration-300">
+            <div className="bg-white p-8 rounded-xl shadow-2xl h-[80vh] max-h-[90vh] max-w-[90vw] w-full overflow-auto transform transition-all duration-300 scale-100 hover:scale-[1.01]">
+                <div className="flex flex-col md:flex-row gap-8">
+                    {/* Left Section */}
+                    <div className="w-full md:w-1/2 space-y-6">
+                        <h3 className="text-2xl font-bold text-gray-900">Edit Article</h3>
+                        
                         {/* Name Field */}
-                        <div className="form-group">
-                            <label className="label">Name</label>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
                             <input
                                 type="text"
                                 value={formData.name}
-                                onChange={preventDirectTyping}
-                                onClick={() => handleInputClick('name')}
-                                className="quantity-input"
-                                placeholder="Click to edit article name"
+                                onFocus={() => handleInputClick('name')}
+                                placeholder="Click to edit name"
+                                readOnly
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                             />
                         </div>
 
                         {/* Description Field */}
-                        <div className="form-group">
-                            <label className="label">Description</label>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                             <input
                                 type="text"
                                 value={formData.description}
-                                onChange={preventDirectTyping}
-                                onClick={() => handleInputClick('description')}
-                                className="quantity-input"
+                                onFocus={() => handleInputClick('description')}
                                 placeholder="Click to edit description"
+                                readOnly
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                             />
                         </div>
 
                         {/* Gender Select */}
-                        <div className="form-group">
-                            <label className="label">Gender</label>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
                             <select
                                 value={formData.gender}
                                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                                className="quantity-input"
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="">Select Gender</option>
                                 <option value="male">Male</option>
@@ -158,41 +160,55 @@ export default function EditArticleForm(props) {
                             </select>
                         </div>
 
-                        {/* Price Fields */}
-                        {["washPrice", "dryPrice", "ironPrice", "paintPrice"].map((field) => (
-                            <div className="form-group" key={field}>
-                                <label className="label">{field.replace("Price", " Price")}</label>
-                                <input
-                                    type="text"
-                                    value={formData[field]}
-                                    onChange={preventDirectTyping}
-                                    onClick={() => handleInputClick(field)}
-                                    className="quantity-input"
-                                    placeholder={`Click to edit ${field.replace("Price", " price")}`}
-                                />
-                            </div>
-                        ))}
+                        {/* Price Fields Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {["washPrice", "dryPrice", "ironPrice", "paintPrice"].map((field) => (
+                                <div key={field}>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        {field.replace("Price", " Price")}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData[field]}
+                                        onFocus={() => handleInputClick(field)}
+                                        placeholder={`Click to edit ${field.replace("Price", " price")}`}
+                                        readOnly
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
+                    {/* Right Section */}
+                    <div className="w-full md:w-1/2 space-y-6">
                         {/* Image Upload */}
-                        <div className="form-group">
-                            <label className="label">Image</label>
-                            {currentImage && (
-                                <div className="image-preview">
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Article Image</label>
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                {currentImage ? (
                                     <img
                                         src={currentImage.startsWith('blob:') ? currentImage : `/storage/${currentImage}`}
                                         alt="Current article"
-                                        className="article-image"
-                                        style={{ maxWidth: '100px', marginBottom: '10px' }}
-                                        onError={(e) => (e.target.src = '/path/to/fallback-image.jpg')}
+                                        className="max-w-full h-48 object-contain mx-auto mb-4 rounded-lg"
                                     />
-                                </div>
-                            )}
-                            <input type="file" onChange={handleImageChange} className="quantity-input" accept="image/*" />
+                                ) : (
+                                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
+                                        <span className="text-gray-400">No image selected</span>
+                                    </div>
+                                )}
+                                <input
+                                    type="file"
+                                    onChange={handleImageChange}
+                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    accept="image/*"
+                                />
+                            </div>
                         </div>
 
                         {/* Virtual Keyboard */}
                         {showKeyboard && (
-                            <div className="keyboard-container">
+                            <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
                                 <VirtualKeyboard
                                     keyboardRef={keyboardRef}
                                     onChangeAll={onKeyboardChangeAll}
@@ -206,27 +222,37 @@ export default function EditArticleForm(props) {
                                         setShowKeyboard(false);
                                         setKeyboardInput(null);
                                     }}
-                                    className="hide-keyboard-button mt-2"
+                                    className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 transition-colors"
                                 >
                                     Hide Keyboard
                                 </button>
                             </div>
                         )}
 
-                        <button type="submit" className="add-button mt-4">Update Article</button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                props.setshowmodifyForm(false);
-                                setShowKeyboard(false);
-                                setKeyboardInput(null);
-                            }}
-                            className="cancel-button mt-4"
-                        >
-                            Cancel
-                        </button>
-                    </form>
+                        {/* Action Buttons */}
+                        <div className="flex justify-end gap-4 mt-8">
+                            <button
+                                type="submit"
+                                onClick={handleSubmit}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200"
+                            >
+                                Update Article
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    props.setshowmodifyForm(false);
+                                    setShowKeyboard(false);
+                                    setKeyboardInput(null);
+                                }}
+                                className="px-6 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-all duration-200"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
     );
 }

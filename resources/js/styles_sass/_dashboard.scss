@@ -1,4 +1,42 @@
-.dashboard{
+.dashboard {
     display: flex;
     position: relative;
+    height: 100vh;
+    overflow: hidden;
+    background: #f8fafc;
+
+    /* Global Scrollbar Styles */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+
+    /* Webkit Browsers (Chrome, Safari) */
+    *::-webkit-scrollbar {
+        width: 4px;
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+        transition: background-color 0.2s ease;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8;
+    }
+
+    .articles-grid {
+        height: 100vh;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+
+        // Webkit Scrollbar Styling
+
+    }
+
 }

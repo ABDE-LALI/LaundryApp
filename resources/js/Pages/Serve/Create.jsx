@@ -27,6 +27,7 @@ export default function Create() {
     const keyboardRefConfirm = useRef(null);
     const [billstatus, setBillPaymentStatus] = useState('unpaid');
     const [ordersconf, setOrdersConf] = useState(false);
+    const [totalBPrice, setTotalBPrice] = useState(0);
 
     // Color options (unchanged)
     const colorOptions = [
@@ -270,13 +271,13 @@ export default function Create() {
     return (
         <Dashboard>
             <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-800">Prendre Commandes</h2>
                 </div>
 
                 <div className="flex gap-2 space-y-6">
                     {/* Article Selection */}
-                    <div className="w-2/3">
+                    <div className="articles-grid w-2/3">
                         <h3 className="text-lg font-semibold text-gray-700 mb-2">Articles</h3>
                         <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-2">
                             {articles?.map((article) => (
@@ -439,7 +440,7 @@ export default function Create() {
                     )}
 
                     {/* Order Summary */}
-                    <div className="w-3/4">
+                    <div className="w-3/4 ">
                         <OrderSummary
                             orderItems={orderItems}
                             ticketId={ticket_id}

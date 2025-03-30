@@ -77,126 +77,144 @@ export default function AddArticleForm(props) {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <Head title="Add Article" />
-            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Add Article</h1>
-                <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
-                    {/* Name Field */}
-                    <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                        <input
-                            type="text"
-                            id="name"
-                            value={formData.name}
-                            onChange={preventDirectTyping}
-                            onClick={() => handleFocus('name')}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                            placeholder="Click to enter article name"
-                        />
-                    </div>
-
-                    {/* Description Field */}
-                    <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                        <input
-                            type="text"
-                            id="description"
-                            value={formData.description}
-                            onChange={preventDirectTyping}
-                            onClick={() => handleFocus('description')}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                            placeholder="Click to enter description"
-                        />
-                    </div>
-
-                    {/* Gender Select */}
-                    <div>
-                        <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender</label>
-                        <select
-                            id="gender"
-                            value={formData.gender}
-                            onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                        >
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="home">Home</option>
-                        </select>
-                    </div>
-
-                    {/* Price Fields */}
-                    {["washPrice", "dryPrice", "ironPrice", "paintPrice"].map((field) => (
-                        <div key={field}>
-                            <label className="block text-sm font-medium text-gray-700">{field.replace("Price", " Price")}</label>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 transition-opacity duration-300">
+            <div className="bg-white p-8 rounded-xl shadow-2xl h-[80vh] max-h-[90vh] max-w-[90vw] w-full overflow-auto transform transition-all duration-300 scale-100 hover:scale-[1.01]">
+                <div className="flex flex-col md:flex-row gap-8">
+                    {/* Left Section */}
+                    <div className="w-full md:w-1/2 space-y-6">
+                        <h3 className="text-2xl font-bold text-gray-900">Add New Article</h3>
+                        
+                        {/* Name Field */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
                             <input
                                 type="text"
-                                value={formData[field]}
-                                onChange={preventDirectTyping}
-                                onClick={() => handleFocus(field)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                placeholder={`Click to enter ${field.replace("Price", " price")}`}
+                                value={formData.name}
+                                onFocus={() => handleFocus('name')}
+                                placeholder="Click to enter name"
+                                readOnly
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                             />
                         </div>
-                    ))}
 
-                    {/* Image Upload */}
-                    <div>
-                        <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image</label>
-                        <input
-                            type="file"
-                            id="image"
-                            onChange={handleImageChange}
-                            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            accept="image/*"
-                        />
+                        {/* Description Field */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                            <input
+                                type="text"
+                                value={formData.description}
+                                onFocus={() => handleFocus('description')}
+                                placeholder="Click to enter description"
+                                readOnly
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            />
+                        </div>
+
+                        {/* Gender Select */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+                            <select
+                                value={formData.gender}
+                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="home">Home</option>
+                            </select>
+                        </div>
+
+                        {/* Price Fields Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {["washPrice", "dryPrice", "ironPrice", "paintPrice"].map((field) => (
+                                <div key={field}>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        {field.replace("Price", " Price")}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData[field]}
+                                        onFocus={() => handleFocus(field)}
+                                        placeholder={`Click to enter ${field.replace("Price", " price")}`}
+                                        readOnly
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Virtual Keyboard */}
-                    {showKeyboard && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                            <VirtualKeyboard
-                                keyboardRef={keyboardRef}
-                                onChangeAll={onKeyboardChangeAll}
-                                onKeyPress={onKeyPress}
-                                initialLayout={keyboardLayout}
-                                inputName={keyboardInput}
-                            />
+                    {/* Right Section */}
+                    <div className="w-full md:w-1/2 space-y-6">
+                        {/* Image Upload */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Article Image</label>
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                {image ? (
+                                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
+                                        <span className="text-gray-400">Image preview available after selection</span>
+                                    </div>
+                                ) : (
+                                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
+                                        <span className="text-gray-400">No image selected</span>
+                                    </div>
+                                )}
+                                <input
+                                    type="file"
+                                    onChange={handleImageChange}
+                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    accept="image/*"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Virtual Keyboard */}
+                        {showKeyboard && (
+                            <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
+                                <VirtualKeyboard
+                                    keyboardRef={keyboardRef}
+                                    onChangeAll={onKeyboardChangeAll}
+                                    onKeyPress={onKeyPress}
+                                    initialLayout={keyboardLayout}
+                                    inputName={keyboardInput}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowKeyboard(false);
+                                        setKeyboardInput(null);
+                                    }}
+                                    className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                                >
+                                    Hide Keyboard
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-end gap-4 mt-8">
+                            <button
+                                type="submit"
+                                onClick={handleSubmit}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200"
+                            >
+                                Add Article
+                            </button>
                             <button
                                 type="button"
                                 onClick={() => {
+                                    props.setshowaddForm(false);
                                     setShowKeyboard(false);
                                     setKeyboardInput(null);
                                 }}
-                                className="mt-2 w-full py-2 px-4 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition duration-200"
+                                className="px-6 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-all duration-200"
                             >
-                                Hide Keyboard
+                                Cancel
                             </button>
                         </div>
-                    )}
-
-                    {/* Buttons */}
-                    <div className="flex space-x-4 mt-6">
-                        <button
-                            type="submit"
-                            className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
-                        >
-                            Submit
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                props.setshowaddForm(false);
-                                setShowKeyboard(false);
-                                setKeyboardInput(null);
-                            }}
-                            className="flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
-                        >
-                            Cancel
-                        </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );

@@ -1,14 +1,17 @@
 import React from 'react';
 
 export default function OrderSummary({
-    orderItems, // Array of order items to display
-    ticketId, // Ticket ID for the caption
-    handleEdit, // Function to handle editing an order item
-    handleDelete, // Function to handle deleting an order item
-    setOrdersConf, // Function to open the confirmation modal
+    orderItems,
+    ticketId,
+    handleEdit,
+    handleDelete,
+    setOrdersConf,
 }) {
+    // Calculate total bill price
+    const totalBillPrice = orderItems.reduce((acc, item) => acc + (item.totalPrice || 0), 0);
+
     return (
-        <div className="order-summary bg-white p-6 shadow-md rounded-lg border border-gray-200">
+        <div className="order-summary bg-white p-6 shadow-md rounded-lg border border-gray-200 mt-3">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Commandes en cours</h3>
             <div className="order-table">
                 <table className="min-w-full border-collapse">
@@ -69,7 +72,10 @@ export default function OrderSummary({
                         )}
                     </tbody>
                 </table>
-                <div className="mt-4 flex justify-end">
+                <div className="mt-4 flex justify-between items-center">
+                    <div className="text-lg font-semibold text-gray-700">
+                        Total: {totalBillPrice.toFixed(2)} DH
+                    </div>
                     <button
                         onClick={() => setOrdersConf(true)}
                         disabled={orderItems.length === 0}

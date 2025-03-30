@@ -3,9 +3,12 @@ import Dashboard from "../Dashboard";
 import axios from "axios";
 import VirtualKeyboard from "@/Components/VirtualKeyboard"; // Adjust the path based on your project structure
 
-const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrderStatusUpdate }) => {
+const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrderStatusUpdate, onClick }) => {
     return (
-        <div className="ticket bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+        <div
+            className="ticket bg-white shadow-lg rounded-xl p-6 border border-gray-200 cursor-pointer hover:bg-gray-50"
+            onClick={() => onClick(ticket.id)} // Trigger onClick with ticket ID
+        >
             <h4 className="text-xl font-semibold text-gray-800 mb-2">Ticket ID: {ticket.id}</h4>
             <p className="text-gray-500">Date: {ticket.created_at}</p>
             <p className="text-gray-500">Status: {ticket.status}</p>
@@ -14,13 +17,19 @@ const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrde
 
             <div className="mt-4 flex gap-2">
                 <button
-                    onClick={() => onTicketStatusUpdate(ticket.id, "delivered")}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the parent onClick
+                        onTicketStatusUpdate(ticket.id, "delivered");
+                    }}
                     className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600"
                 >
                     Mark as Delivered
                 </button>
                 <button
-                    onClick={() => onTicketStatusUpdate(ticket.id, "received")}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the parent onClick
+                        onTicketStatusUpdate(ticket.id, "received");
+                    }}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
                 >
                     Mark as Received
@@ -45,13 +54,19 @@ const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrde
                                 <p>Status: {order.order_status}</p>
                                 <div className="mt-2 flex gap-2">
                                     <button
-                                        onClick={() => onOrderStatusUpdate(order.id, "delivered")}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering the parent onClick
+                                            onOrderStatusUpdate(order.id, "delivered");
+                                        }}
                                         className="px-3 py-1 text-sm text-white bg-green-500 rounded-lg hover:bg-green-600"
                                     >
                                         Delivered
                                     </button>
                                     <button
-                                        onClick={() => onOrderStatusUpdate(order.id, "received")}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering the parent onClick
+                                            onOrderStatusUpdate(order.id, "received");
+                                        }}
                                         className="px-3 py-1 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600"
                                     >
                                         Received
@@ -150,13 +165,14 @@ export default function Search() {
             setIsLoading(false);
         }
     };
+
     const setTicketStatus = async (ticketId, status) => {
         setIsLoading(true);
         try {
             await axios.put(`/serve/set-ticket-status/${ticketId}/${status}`)
                 .then(() => {
                     alert("Ticket Status updated successfully.");
-                    fetchRecentTickets();
+                    searchedTicket ? handleSearch(ticketId) : fetchRecentTickets(); // Refresh the searched ticket
                 })
                 .catch((error) => {
                     console.error("Error updating status:", error);
@@ -199,59 +215,61 @@ export default function Search() {
         }
     };
 
+    const handleTicketClick = (ticketId) => {
+        handleSearch(ticketId); // Trigger search when ticket is clicked
+    };
+
     return (
         <Dashboard>
-            <div className="search p-8 max-w-4xl mx-auto">
+            <div className="search p-8 w-full mx-auto">
+                {/* Search form remains unchanged */}
                 <div className="search-form mb-6 flex gap-3 relative">
                     <input
                         ref={inputRef}
                         type="text"
-                        name="searchId"
-                        placeholder="Enter Ticket ID"
                         value={searchId}
                         onChange={(e) => setSearchId(e.target.value)}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
-                        readOnly
-                        className="border rounded-lg px-4 py-2 w-64 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Search by Ticket ID"
+                        className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                         onClick={() => handleSearch(searchId)}
-                        disabled={isLoading}
-                        className={`bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 ${
-                            isLoading ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                        aria-label="Search for ticket by ID"
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                     >
-                        {isLoading ? "Searching..." : "Search"}
+                        Search
                     </button>
-                    {searchedTicket && (
-                        <button
-                            onClick={clearSearch}
-                            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-                            aria-label="Show recent tickets"
-                        >
-                            Show Recent Tickets
-                        </button>
-                    )}
+                    <button
+                        onClick={clearSearch}
+                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                    >
+                        Clear
+                    </button>
                     {showKeyboard && (
-                        <div className="absolute top-14 left-0 z-10 w-full max-w-md">
+                        <div className="absolute top-full left-0 z-10 mt-2">
                             <VirtualKeyboard
                                 keyboardRef={keyboardRef}
-                                onChangeAll={handleKeyboardChange}
+                                onChange={handleKeyboardChange}
                                 onKeyPress={handleKeyPress}
-                                initialLayout="numeric"
                                 inputName="searchId"
                             />
                         </div>
                     )}
                 </div>
 
-                <div className="recent-tickets">
+                {/* Scrollable tickets list area */}
+                <div className="recent-tickets overflow-y-auto h-full space-y-4">
                     {isLoading ? (
                         <p className="text-gray-600 text-center">Loading...</p>
                     ) : searchedTicket ? (
-                        <TicketCard ticket={searchedTicket} showArticles={true} onOrderStatusUpdate={setOrderStatus} onTicketStatusUpdate={setTicketStatus} />
+                        <TicketCard
+                            ticket={searchedTicket}
+                            showArticles={true}
+                            onOrderStatusUpdate={setOrderStatus}
+                            onTicketStatusUpdate={setTicketStatus}
+                            onClick={() => {}} // No-op for searched ticket
+                        />
                     ) : recentTickets.length === 0 ? (
                         <p className="text-gray-600 text-center">No tickets found.</p>
                     ) : (
@@ -262,6 +280,7 @@ export default function Search() {
                                 showArticles={false}
                                 onTicketStatusUpdate={setTicketStatus}
                                 onOrderStatusUpdate={setOrderStatus}
+                                onClick={handleTicketClick} // Pass click handler
                             />
                         ))
                     )}

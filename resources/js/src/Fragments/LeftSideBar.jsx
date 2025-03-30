@@ -1,5 +1,5 @@
 import { Section } from "./Components/section";
-export function LeftSidear() {
+export function LeftSideBar() {
     return (
         <div className="Left_Sidebar">
             {/* <img className="logo" src="imgs/669350e8b960b45a20614fcfc216b003.png" alt="not found" /> */}
