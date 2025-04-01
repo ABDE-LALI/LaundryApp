@@ -370,7 +370,7 @@ export default function Create() {
                                                     <button
                                                         key={service.id}
                                                         onClick={() => setSelectedService(service.id)}
-                                                        className={`bg-white p-4 rounded-lg shadow-md border ${selectedService === service.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                                                        className={`bg-white p-4 rounded-lg shadow-md border ${selectedService === service.id ? 'border-blue-500 bg-blue-100' : 'border-gray-200'
                                                             } hover:shadow-lg hover:border-blue-400 transition-all duration-200`}
                                                     >
                                                         <img
@@ -389,7 +389,7 @@ export default function Create() {
                                             <h4 className="text-sm font-semibold text-gray-700 mb-3">Couleur</h4>
                                             <div className="flex overflow-x-auto gap-1 pb-2 scrollbar-hidden snap-x snap-mandatory">
                                                 {colorOptions.map((colorGroup, index) => (
-                                                    <div key={index} className="flex justify-center shrink-0">
+                                                    <div key={index} className="p-1 flex justify-center shrink-0">
                                                         {colorGroup.map((color) => (
                                                             <button
                                                                 key={color.name}
@@ -467,6 +467,7 @@ export default function Create() {
                             keyboardLayoutConfirm={keyboardLayoutConfirm}
                             activeInputConfirm={activeInputConfirm}
                             confirmKeyboardContainerRef={confirmKeyboardContainerRef}
+                            orderItems={orderItems}
                         />
                     )}
                 </div>

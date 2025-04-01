@@ -7,7 +7,7 @@
 
     /* Global Scrollbar Styles */
     * {
-        scrollbar-width: thin;
+        scrollbar-width:none;
         scrollbar-color: #cbd5e1 transparent;
     }
 
@@ -30,10 +30,8 @@
     }
 
     .articles-grid {
-        height: 100vh;
+        height: 85vh;
         overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 transparent;
 
         // Webkit Scrollbar Styling
 

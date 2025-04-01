@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/serve/get-ticket/{id}', [TicketController::class, 'getTicket'])->name('serve.getTicket');
     Route::put('/serve/set-order-status/{orderId}/{status}', [OrderController::class, 'setStatus'])->name('serve.setStatus');
     Route::put('/serve/set-ticket-status/{ticketId}/{status}', [TicketController::class, 'setStatus'])->name('serve.setStatus');
+    Route::put('/serve/update-paid-amount/{ticketId}', [TicketController::class, 'updatePaidAmount'])->name('serve.updatePaidAmount');
     Route::get('/serve/{order?}/edit', function () {
         return Inertia::render('Serve/Edit');
     })->name('serve.edit');

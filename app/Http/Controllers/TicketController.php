@@ -75,4 +75,21 @@ class TicketController extends Controller
 
         return response()->json(['message' => 'Status updated successfully', 'ticket' => $ticket]);
     }
+    public function updatePaidAmount(Request $request, $ticketId)
+    {
+        $request->validate([
+            'paid_amount' => 'required|numeric',
+        ]);
+
+        $ticket = Ticket::find($ticketId);
+
+        if (!$ticket) {
+            return response()->json(['message' => 'Ticket not found'], 404);
+        }
+
+        $ticket->paid_amount = $request->input('paid_amount');
+        $ticket->save();
+
+        return response()->json(['message' => 'Paid amount updated successfully', 'ticket' => $ticket]);
+    }
 }

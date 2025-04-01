@@ -1,24 +1,111 @@
 import { useEffect, useState, useRef } from "react";
 import Dashboard from "../Dashboard";
 import axios from "axios";
-import VirtualKeyboard from "@/Components/VirtualKeyboard"; // Adjust the path based on your project structure
+import VirtualKeyboard from "@/Components/VirtualKeyboard";
 
-const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrderStatusUpdate, onClick }) => {
+const TicketCard = ({
+    ticket,
+    showArticles = false,
+    onTicketStatusUpdate,
+    onOrderStatusUpdate,
+    onClick,
+    onPaidAmountUpdate,
+}) => {
+    const [isEditingPaidAmount, setIsEditingPaidAmount] = useState(false);
+    const [editedPaidAmount, setEditedPaidAmount] = useState(ticket.paid_amount.toString());
+    const [showKeyboard, setShowKeyboard] = useState(false);
+    const keyboardRef = useRef(null);
+
+    useEffect(() => {
+        if (keyboardRef.current && showKeyboard) {
+            keyboardRef.current.setInput(editedPaidAmount);
+        }
+    }, [editedPaidAmount, showKeyboard]);
+
+    const handlePaidAmountChange = (inputs) => {
+        const value = inputs["paid_amount"] || "";
+        if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
+            setEditedPaidAmount(value);
+        }
+    };
+
+    const handleSavePaidAmount = async () => {
+        const updatedAmount = parseFloat(editedPaidAmount) || 0;
+        await onPaidAmountUpdate(ticket.id, updatedAmount);
+        setIsEditingPaidAmount(false);
+        setShowKeyboard(false);
+    };
+
     return (
         <div
             className="ticket bg-white shadow-lg rounded-xl p-6 border border-gray-200 cursor-pointer hover:bg-gray-50"
-            onClick={() => onClick(ticket.id)} // Trigger onClick with ticket ID
+            onClick={() => onClick(ticket.id)}
         >
             <h4 className="text-xl font-semibold text-gray-800 mb-2">Ticket ID: {ticket.id}</h4>
             <p className="text-gray-500">Date: {ticket.created_at}</p>
             <p className="text-gray-500">Status: {ticket.status}</p>
-            <p className="text-gray-500">Total Price: <span className="font-medium">{ticket.total_price} DH</span></p>
-            <p className="text-gray-500">Paid Amount: <span className="font-medium">{ticket.paid_amount} DH</span></p>
-
+            <p className="text-gray-500">
+                Total Price: <span className="font-medium">{ticket.total_price} DH</span>
+            </p>
+            <div className="text-gray-500 flex items-center gap-2">
+                Paid Amount:
+                {isEditingPaidAmount ? (
+                    <div className="relative">
+                        <input
+                            type="text"
+                            value={editedPaidAmount}
+                            onChange={(e) => setEditedPaidAmount(e.target.value)}
+                            onFocus={() => setShowKeyboard(true)}
+                            className="w-24 p-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        {showKeyboard && (
+                            <div className="absolute top-full left-0 z-10 mt-2 w-64 bg-white shadow-lg rounded-lg p-4">
+                                <button
+                                    onClick={() => setShowKeyboard(false)}
+                                    className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                    style={{ width: "24px", height: "24px" }}
+                                >
+                                    ×
+                                </button>
+                                <VirtualKeyboard
+                                    keyboardRef={keyboardRef}
+                                    onChangeAll={handlePaidAmountChange}
+                                    inputName="paid_amount"
+                                    initialLayout="numeric"
+                                />
+                            </div>
+                        )}
+                        <button
+                            onClick={handleSavePaidAmount}
+                            className="ml-2 px-2 py-1 text-sm text-white bg-green-500 rounded-lg hover:bg-green-600"
+                        >
+                            Save
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        <span className="font-medium">{ticket.paid_amount} DH</span>
+                        {showArticles && ( // Show "Edit" button only when showArticles is true
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsEditingPaidAmount(true);
+                                }}
+                                className="ml-2 px-6 py-1 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                            >
+                                Edit
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
+            <p className="text-gray-500">
+                Rest: <span className="font-medium">{ticket.total_price - ticket.paid_amount} DH</span>
+            </p>
             <div className="mt-4 flex gap-2">
                 <button
                     onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the parent onClick
+                        e.stopPropagation();
                         onTicketStatusUpdate(ticket.id, "delivered");
                     }}
                     className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600"
@@ -27,7 +114,7 @@ const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrde
                 </button>
                 <button
                     onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the parent onClick
+                        e.stopPropagation();
                         onTicketStatusUpdate(ticket.id, "received");
                     }}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
@@ -47,15 +134,19 @@ const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrde
 
                         return (
                             <div key={index} className="bg-gray-50 p-3 rounded-lg shadow-sm mt-2">
-                                <p><strong>{article.name}</strong> (Brand: {order.brand})</p>
+                                <p>
+                                    <strong>{article.name}</strong> (Brand: {order.brand})
+                                </p>
                                 <p>Color: {order.color}</p>
-                                <p>Price: {order.price ? `${order.price} DH` : "N/A"} | Quantity: {order.quantity}</p>
+                                <p>
+                                    Price: {order.price ? `${order.price} DH` : "N/A"} | Quantity: {order.quantity}
+                                </p>
                                 <p>Service: {service ? service.name : "N/A"}</p>
                                 <p>Status: {order.order_status}</p>
                                 <div className="mt-2 flex gap-2">
                                     <button
                                         onClick={(e) => {
-                                            e.stopPropagation(); // Prevent triggering the parent onClick
+                                            e.stopPropagation();
                                             onOrderStatusUpdate(order.id, "delivered");
                                         }}
                                         className="px-3 py-1 text-sm text-white bg-green-500 rounded-lg hover:bg-green-600"
@@ -64,7 +155,7 @@ const TicketCard = ({ ticket, showArticles = false, onTicketStatusUpdate, onOrde
                                     </button>
                                     <button
                                         onClick={(e) => {
-                                            e.stopPropagation(); // Prevent triggering the parent onClick
+                                            e.stopPropagation();
                                             onOrderStatusUpdate(order.id, "received");
                                         }}
                                         className="px-3 py-1 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600"
@@ -95,11 +186,10 @@ export default function Search() {
     }, []);
 
     useEffect(() => {
-        // Sync the keyboard's internal state with the searchId state
-        if (keyboardRef.current) {
-            keyboardRef.current.setInput(searchId, "searchId");
+        if (keyboardRef.current && showKeyboard) {
+            keyboardRef.current.setInput(searchId);
         }
-    }, [searchId]);
+    }, [searchId, showKeyboard]);
 
     const fetchRecentTickets = async () => {
         setIsLoading(true);
@@ -145,22 +235,17 @@ export default function Search() {
     const setOrderStatus = async (orderId, status) => {
         setIsLoading(true);
         try {
-            await axios.put(`/serve/set-order-status/${orderId}/${status}`)
-                .then(() => {
-                    alert("Status updated successfully.");
-                    if (searchedTicket) {
-                        handleSearch(searchedTicket.id);
-                    } else {
-                        fetchRecentTickets();
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error updating status:", error);
-                    alert(error.response?.data?.message || "Failed to update status.");
-                });
+            await axios.put(`/serve/set-order-status/${orderId}/${status}`).then(() => {
+                alert("Status updated successfully.");
+                if (searchedTicket) {
+                    handleSearch(searchedTicket.id);
+                } else {
+                    fetchRecentTickets();
+                }
+            });
         } catch (error) {
             console.error("Error updating status:", error);
-            alert("Error updating status.");
+            alert(error.response?.data?.message || "Failed to update status.");
         } finally {
             setIsLoading(false);
         }
@@ -169,18 +254,32 @@ export default function Search() {
     const setTicketStatus = async (ticketId, status) => {
         setIsLoading(true);
         try {
-            await axios.put(`/serve/set-ticket-status/${ticketId}/${status}`)
-                .then(() => {
-                    alert("Ticket Status updated successfully.");
-                    searchedTicket ? handleSearch(ticketId) : fetchRecentTickets(); // Refresh the searched ticket
-                })
-                .catch((error) => {
-                    console.error("Error updating status:", error);
-                    alert(error.response?.data?.message || "Failed to update the ticket status.");
-                });
+            await axios.put(`/serve/set-ticket-status/${ticketId}/${status}`).then(() => {
+                alert("Ticket Status updated successfully.");
+                searchedTicket ? handleSearch(ticketId) : fetchRecentTickets();
+            });
         } catch (error) {
             console.error("Error updating status:", error);
-            alert("Error updating ticket status.");
+            alert(error.response?.data?.message || "Failed to update ticket status.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const updatePaidAmount = async (ticketId, newPaidAmount) => {
+        setIsLoading(true);
+        try {
+            await axios.put(`/serve/update-paid-amount/${ticketId}`, { paid_amount: newPaidAmount }).then(() => {
+                alert("Paid amount updated successfully.");
+                if (searchedTicket) {
+                    handleSearch(ticketId);
+                } else {
+                    fetchRecentTickets();
+                }
+            });
+        } catch (error) {
+            console.error("Error updating paid amount:", error);
+            alert(error.response?.data?.message || "Failed to update paid amount.");
         } finally {
             setIsLoading(false);
         }
@@ -201,28 +300,21 @@ export default function Search() {
         setShowKeyboard(true);
     };
 
-    const handleInputBlur = () => {
-        // Uncomment if you want the keyboard to hide on blur
-        // setShowKeyboard(false);
-    };
-
     const handleKeyPress = (button) => {
         if (button === "{enter}") {
             handleSearch(searchId);
         } else if (button === "{bksp}") {
-            // Handle backspace explicitly
             setSearchId((prev) => prev.slice(0, -1));
         }
     };
 
     const handleTicketClick = (ticketId) => {
-        handleSearch(ticketId); // Trigger search when ticket is clicked
+        handleSearch(ticketId);
     };
 
     return (
         <Dashboard>
             <div className="search p-8 w-full mx-auto">
-                {/* Search form remains unchanged */}
                 <div className="search-form mb-6 flex gap-3 relative">
                     <input
                         ref={inputRef}
@@ -230,7 +322,6 @@ export default function Search() {
                         value={searchId}
                         onChange={(e) => setSearchId(e.target.value)}
                         onFocus={handleInputFocus}
-                        onBlur={handleInputBlur}
                         placeholder="Search by Ticket ID"
                         className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -247,19 +338,26 @@ export default function Search() {
                         Clear
                     </button>
                     {showKeyboard && (
-                        <div className="absolute top-full left-0 z-10 mt-2">
+                        <div className="absolute top-full left-0 z-10 mt-2 w-[25vw] max-w-2xl bg-white shadow-lg rounded-lg p-4">
+                            <button
+                                onClick={() => setShowKeyboard(false)}
+                                className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                style={{ width: "32px", height: "32px" }}
+                            >
+                                ×
+                            </button>
                             <VirtualKeyboard
                                 keyboardRef={keyboardRef}
-                                onChange={handleKeyboardChange}
+                                onChangeAll={handleKeyboardChange}
                                 onKeyPress={handleKeyPress}
                                 inputName="searchId"
+                                initialLayout="numeric"
                             />
                         </div>
                     )}
                 </div>
 
-                {/* Scrollable tickets list area */}
-                <div className="recent-tickets overflow-y-auto h-full space-y-4">
+                <div className="recent-tickets overflow-y-auto h-max-[85vh] h-[85vh] space-y-4">
                     {isLoading ? (
                         <p className="text-gray-600 text-center">Loading...</p>
                     ) : searchedTicket ? (
@@ -268,7 +366,8 @@ export default function Search() {
                             showArticles={true}
                             onOrderStatusUpdate={setOrderStatus}
                             onTicketStatusUpdate={setTicketStatus}
-                            onClick={() => {}} // No-op for searched ticket
+                            onClick={() => {}}
+                            onPaidAmountUpdate={updatePaidAmount}
                         />
                     ) : recentTickets.length === 0 ? (
                         <p className="text-gray-600 text-center">No tickets found.</p>
@@ -280,7 +379,8 @@ export default function Search() {
                                 showArticles={false}
                                 onTicketStatusUpdate={setTicketStatus}
                                 onOrderStatusUpdate={setOrderStatus}
-                                onClick={handleTicketClick} // Pass click handler
+                                onClick={handleTicketClick}
+                                onPaidAmountUpdate={updatePaidAmount}
                             />
                         ))
                     )}
