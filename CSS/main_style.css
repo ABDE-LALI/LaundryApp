@@ -19,7 +19,6 @@
 
 .Left_Sidebar {
   min-height: 100vh;
-  background-color: #ffffff;
   padding: 30px 15px;
   display: flex;
   flex-direction: column;
@@ -29,6 +28,7 @@
   font-weight: 500;
   overflow-y: scroll;
   scrollbar-width: none;
+  max-width: 90px;
 }
 .Left_Sidebar .logo {
   width: 60px;

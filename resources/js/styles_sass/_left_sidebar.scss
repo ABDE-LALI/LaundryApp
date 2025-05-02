@@ -1,7 +1,7 @@
 
 .Left_Sidebar {
     min-height: 100vh;
-    background-color: #ffffff;
+    // background-color: #ffffff;
     padding: 30px 15px;
     display: flex;
     flex-direction: column;
@@ -11,6 +11,7 @@
     font-weight: 500;
     overflow-y: scroll;
     scrollbar-width: none;
+    max-width: 90px;
 
     .logo {
         width: 60px;
@@ -22,7 +23,7 @@
         flex: 1;
 
         .sec {
-            width: 20px;
+            width: 20px ;
             height: 72px;
             display: flex;
             flex-direction: column;
@@ -32,7 +33,7 @@
             border-radius: 20px;
 
             svg {
-                width: 20px;
+                width: 20px ;
                 height: 20px;
                 margin-bottom: 4px;
             }

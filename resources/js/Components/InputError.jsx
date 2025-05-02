@@ -6,5 +6,6 @@ export default function InputError({ message, className = '', ...props }) {
         >
             {message}
         </p>
-    ) : null;
+        
+    ) : <p style={{opacity: '0'}}>test</p>;
 }

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Inertia } from "@inertiajs/inertia";
 import { usePage } from "@inertiajs/react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
 import axios from 'axios'; // Add axios for JSON fetching
@@ -35,8 +34,8 @@ const Statistics = () => {
 
     return (
         <Dashboard>
-            <div className="container mx-auto p-6">
-                <h1 className="text-3xl font-bold mb-6">Statistics Dashboard</h1>
+            <div className="container mx-auto">
+                <h1 className="text-3xl font-bold mb-6 py-4">Statistics Dashboard</h1>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                     <div className="border rounded-lg p-4">
                         <h2 className="text-lg font-semibold">Total Tickets</h2>

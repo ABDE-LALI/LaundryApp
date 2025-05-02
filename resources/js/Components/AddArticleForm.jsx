@@ -1,5 +1,5 @@
 import { Head, router } from "@inertiajs/react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import VirtualKeyboard from "./VirtualKeyboard";
 import Dashboard from "@/Pages/Dashboard";
 
@@ -15,11 +15,22 @@ export default function AddArticleForm(props) {
     });
 
     const [image, setImage] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
     const [keyboardInput, setKeyboardInput] = useState(null);
     const [showKeyboard, setShowKeyboard] = useState(false);
     const [keyboardLayout, setKeyboardLayout] = useState('alphanumeric');
-    const [showConfirm, setShowConfirm] = useState(false); // New state for confirmation dialog
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [notification, setNotification] = useState(null);
     const keyboardRef = useRef(null);
+
+    // Cleanup preview URL when component unmounts or image changes
+    useEffect(() => {
+        return () => {
+            if (previewImage) {
+                URL.revokeObjectURL(previewImage);
+            }
+        };
+    }, [previewImage]);
 
     const onKeyboardChangeAll = useCallback((inputs) => {
         if (keyboardInput) {
@@ -32,7 +43,7 @@ export default function AddArticleForm(props) {
 
     const onKeyPress = (button) => {
         if (button === '{enter}') {
-            setShowConfirm(true); // Show confirmation instead of submitting directly
+            setShowConfirm(true);
         }
     };
 
@@ -48,12 +59,16 @@ export default function AddArticleForm(props) {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (file) setImage(file);
+        if (file) {
+            setImage(file);
+            setPreviewImage(URL.createObjectURL(file));
+        }
     };
 
     const handleSubmit = () => {
         if (!formData.name || !formData.description || !formData.gender) {
-            alert('Please fill in all required fields (name, description, and gender).');
+            setNotification({ type: "error", message: "Please fill in all required fields (name, description, and gender)." });
+            setTimeout(() => setNotification(null), 3000);
             return;
         }
 
@@ -65,21 +80,26 @@ export default function AddArticleForm(props) {
             onSuccess: () => {
                 setFormData({ name: '', description: '', gender: '', washPrice: '', dryPrice: '', ironPrice: '', paintPrice: '' });
                 setImage(null);
+                setPreviewImage(null);
                 setShowKeyboard(false);
                 setKeyboardInput(null);
                 props.setshowaddForm(false);
-                alert('Article added successfully!');
+                setNotification({ type: "success", message: "Article added successfully!" });
+                setTimeout(() => setNotification(null), 3000);
             },
             onError: (errors) => {
                 console.error(errors);
-                alert('Error adding article: ' + (Object.values(errors).join(', ') || 'Unknown error'));
+                setNotification({
+                    type: "error",
+                    message: 'Error adding article: ' + (Object.values(errors).join(', ') || 'Unknown error')
+                });
+                setTimeout(() => setNotification(null), 3000);
             },
         });
     };
 
-    // Confirmation Dialog Component
     const ConfirmationDialog = () => (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-60">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
                 <p className="text-gray-700 mb-4">Are you sure you want to add this article?</p>
                 <div className="flex justify-end gap-4">
@@ -88,17 +108,30 @@ export default function AddArticleForm(props) {
                             handleSubmit();
                             setShowConfirm(false);
                         }}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                     >
                         Yes
                     </button>
                     <button
                         onClick={() => setShowConfirm(false)}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                     >
                         No
                     </button>
                 </div>
+            </div>
+        </div>
+    );
+
+    const Notification = ({ type, message }) => (
+        <div className="fixed top-4 right-4 z-70">
+            <div
+                className={`p-4 rounded-lg shadow-lg text-white flex items-center gap-2 animate-fade-in ${
+                    type === "success" ? "bg-green-500" : "bg-red-500"
+                }`}
+            >
+                <span className="text-lg">{type === "success" ? "✅" : "❌"}</span>
+                <p className="font-medium">{message}</p>
             </div>
         </div>
     );
@@ -108,7 +141,7 @@ export default function AddArticleForm(props) {
             <div className="bg-white p-8 rounded-xl shadow-2xl h-[80vh] max-h-[90vh] max-w-[90vw] w-full overflow-auto transform transition-all duration-300 scale-100 hover:scale-[1.01]">
                 <div className="flex flex-col md:flex-row gap-8">
                     {/* Left Section */}
-                    <div className="w-full md:w-1/2 space-y-6">
+                    <div className="w-full md:w-1/2 space-y-2">
                         <h3 className="text-2xl font-bold text-gray-900">Add New Article</h3>
                         
                         <div>
@@ -169,22 +202,27 @@ export default function AddArticleForm(props) {
                     </div>
 
                     {/* Right Section */}
-                    <div className="w-full md:w-1/2 space-y-6">
+                    <div className="w-full md:w-1/2 space-y-2">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Article Image</label>
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                {image ? (
-                                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
-                                        <span className="text-gray-400">Image preview available after selection</span>
-                                    </div>
-                                ) : (
-                                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
-                                        <span className="text-gray-400">No image selected</span>
-                                    </div>
+                                {!showKeyboard && (
+                                    previewImage ? (
+                                        <img
+                                            src={previewImage}
+                                            alt="Selected article"
+                                            className="max-w-full h-48 object-contain mx-auto mb-4 rounded-lg"
+                                        />
+                                    ) : (
+                                        <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
+                                            <span className="text-gray-400">No image selected</span>
+                                        </div>
+                                    )
                                 )}
                                 <input
                                     type="file"
                                     onChange={handleImageChange}
+                                    onClick={()=> setShowKeyboard(false)}
                                     className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                     accept="image/*"
                                 />
@@ -192,7 +230,7 @@ export default function AddArticleForm(props) {
                         </div>
 
                         {showKeyboard && (
-                            <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
+                            <div className="bg-gray-100 p-4 rounded-lg shadow-inner relative">
                                 <VirtualKeyboard
                                     keyboardRef={keyboardRef}
                                     onChangeAll={onKeyboardChangeAll}
@@ -206,9 +244,9 @@ export default function AddArticleForm(props) {
                                         setShowKeyboard(false);
                                         setKeyboardInput(null);
                                     }}
-                                    className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                                    className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                                 >
-                                    Hide Keyboard
+                                    <span className="text-lg font-bold">×</span>
                                 </button>
                             </div>
                         )}
@@ -216,7 +254,7 @@ export default function AddArticleForm(props) {
                         <div className="flex justify-end gap-4 mt-8">
                             <button
                                 type="submit"
-                                onClick={() => setShowConfirm(true)} // Show confirmation dialog
+                                onClick={() => setShowConfirm(true)}
                                 className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200"
                             >
                                 Add Article
@@ -237,6 +275,7 @@ export default function AddArticleForm(props) {
                 </div>
             </div>
             {showConfirm && <ConfirmationDialog />}
+            {notification && <Notification type={notification.type} message={notification.message} />}
         </div>
     );
 }

@@ -10,6 +10,7 @@ const TicketCard = ({
     onOrderStatusUpdate,
     onClick,
     onPaidAmountUpdate,
+    setNotification, // Pass setNotification to update notifications from TicketCard
 }) => {
     const [isEditingPaidAmount, setIsEditingPaidAmount] = useState(false);
     const [editedPaidAmount, setEditedPaidAmount] = useState(ticket.paid_amount.toString());
@@ -31,7 +32,7 @@ const TicketCard = ({
 
     const handleSavePaidAmount = async () => {
         const updatedAmount = parseFloat(editedPaidAmount) || 0;
-        await onPaidAmountUpdate(ticket.id, updatedAmount);
+        await onPaidAmountUpdate(ticket.id, updatedAmount, setNotification);
         setIsEditingPaidAmount(false);
         setShowKeyboard(false);
     };
@@ -85,7 +86,7 @@ const TicketCard = ({
                 ) : (
                     <>
                         <span className="font-medium">{ticket.paid_amount} DH</span>
-                        {showArticles && ( // Show "Edit" button only when showArticles is true
+                        {showArticles && (
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -99,9 +100,15 @@ const TicketCard = ({
                     </>
                 )}
             </div>
-            <p className="text-gray-500">
-                Rest: <span className="font-medium">{ticket.total_price - ticket.paid_amount} DH</span>
-            </p>
+            {(ticket.total_price - ticket.paid_amount) >= 0 ? (
+                <p className="text-gray-500">
+                    Rest: <span className="font-medium">{ticket.total_price - ticket.paid_amount} DH</span>
+                </p>
+            ) : (
+                <p className="text-gray-500">
+                    Back: <span className="font-medium">{(ticket.total_price - ticket.paid_amount) * -1} DH</span>
+                </p>
+            )}
             <div className="mt-4 flex gap-2">
                 <button
                     onClick={(e) => {
@@ -178,6 +185,7 @@ export default function Search() {
     const [searchedTicket, setSearchedTicket] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [showKeyboard, setShowKeyboard] = useState(false);
+    const [notification, setNotification] = useState(null); // New state for notifications
     const keyboardRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -198,7 +206,8 @@ export default function Search() {
             setRecentTickets(response.data || []);
         } catch (error) {
             console.error("Error fetching recent tickets:", error);
-            alert("Error fetching recent tickets.");
+            setNotification({ type: "error", message: "Erreur lors de la récupération des tickets récents." });
+            setTimeout(() => setNotification(null), 3000); // Auto-dismiss after 3 seconds
             setRecentTickets([]);
         } finally {
             setIsLoading(false);
@@ -207,7 +216,8 @@ export default function Search() {
 
     const handleSearch = async (id) => {
         if (!(id + " ").trim()) {
-            alert("Please enter a valid ticket ID.");
+            setNotification({ type: "error", message: "Veuillez entrer un ID de ticket valide." });
+            setTimeout(() => setNotification(null), 3000);
             return;
         }
 
@@ -218,13 +228,15 @@ export default function Search() {
             if (response.data) {
                 setSearchedTicket(response.data);
             } else {
-                alert("No ticket found with this ID.");
+                setNotification({ type: "error", message: "Aucun ticket trouvé avec cet ID." });
+                setTimeout(() => setNotification(null), 3000);
                 setSearchedTicket(null);
                 await fetchRecentTickets();
             }
         } catch (error) {
             console.error("Error searching for ticket:", error);
-            alert("Error searching for ticket.");
+            setNotification({ type: "error", message: "Erreur lors de la recherche du ticket." });
+            setTimeout(() => setNotification(null), 3000);
             setSearchedTicket(null);
             await fetchRecentTickets();
         } finally {
@@ -236,7 +248,8 @@ export default function Search() {
         setIsLoading(true);
         try {
             await axios.put(`/serve/set-order-status/${orderId}/${status}`).then(() => {
-                alert("Status updated successfully.");
+                setNotification({ type: "success", message: "Statut mis à jour avec succès." });
+                setTimeout(() => setNotification(null), 3000);
                 if (searchedTicket) {
                     handleSearch(searchedTicket.id);
                 } else {
@@ -245,7 +258,11 @@ export default function Search() {
             });
         } catch (error) {
             console.error("Error updating status:", error);
-            alert(error.response?.data?.message || "Failed to update status.");
+            setNotification({
+                type: "error",
+                message: error.response?.data?.message || "Échec de la mise à jour du statut.",
+            });
+            setTimeout(() => setNotification(null), 3000);
         } finally {
             setIsLoading(false);
         }
@@ -255,22 +272,28 @@ export default function Search() {
         setIsLoading(true);
         try {
             await axios.put(`/serve/set-ticket-status/${ticketId}/${status}`).then(() => {
-                alert("Ticket Status updated successfully.");
+                setNotification({ type: "success", message: "Statut du ticket mis à jour avec succès." });
+                setTimeout(() => setNotification(null), 3000);
                 searchedTicket ? handleSearch(ticketId) : fetchRecentTickets();
             });
         } catch (error) {
             console.error("Error updating status:", error);
-            alert(error.response?.data?.message || "Failed to update ticket status.");
+            setNotification({
+                type: "error",
+                message: error.response?.data?.message || "Échec de la mise à jour du statut du ticket.",
+            });
+            setTimeout(() => setNotification(null), 3000);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const updatePaidAmount = async (ticketId, newPaidAmount) => {
+    const updatePaidAmount = async (ticketId, newPaidAmount, setNotification) => {
         setIsLoading(true);
         try {
             await axios.put(`/serve/update-paid-amount/${ticketId}`, { paid_amount: newPaidAmount }).then(() => {
-                alert("Paid amount updated successfully.");
+                setNotification({ type: "success", message: "Montant payé mis à jour avec succès." });
+                setTimeout(() => setNotification(null), 3000);
                 if (searchedTicket) {
                     handleSearch(ticketId);
                 } else {
@@ -279,7 +302,11 @@ export default function Search() {
             });
         } catch (error) {
             console.error("Error updating paid amount:", error);
-            alert(error.response?.data?.message || "Failed to update paid amount.");
+            setNotification({
+                type: "error",
+                message: error.response?.data?.message || "Échec de la mise à jour du montant payé.",
+            });
+            setTimeout(() => setNotification(null), 3000);
         } finally {
             setIsLoading(false);
         }
@@ -312,9 +339,23 @@ export default function Search() {
         handleSearch(ticketId);
     };
 
+    // Styled Notification Component
+    const Notification = ({ type, message }) => (
+        <div className="fixed top-4 right-4 z-70">
+            <div
+                className={`p-4 rounded-lg shadow-lg text-white flex items-center gap-2 animate-fade-in ${
+                    type === "success" ? "bg-green-500" : "bg-red-500"
+                }`}
+            >
+                <span className="text-lg">{type === "success" ? "✅" : "❌"}</span>
+                <p className="font-medium">{message}</p>
+            </div>
+        </div>
+    );
+
     return (
         <Dashboard>
-            <div className="search p-8 w-full mx-auto">
+            <div className="search p-6 w-full mx-auto">
                 <div className="search-form mb-6 flex gap-3 relative">
                     <input
                         ref={inputRef}
@@ -368,6 +409,7 @@ export default function Search() {
                             onTicketStatusUpdate={setTicketStatus}
                             onClick={() => {}}
                             onPaidAmountUpdate={updatePaidAmount}
+                            setNotification={setNotification} // Pass setNotification to TicketCard
                         />
                     ) : recentTickets.length === 0 ? (
                         <p className="text-gray-600 text-center">No tickets found.</p>
@@ -381,10 +423,16 @@ export default function Search() {
                                 onOrderStatusUpdate={setOrderStatus}
                                 onClick={handleTicketClick}
                                 onPaidAmountUpdate={updatePaidAmount}
+                                setNotification={setNotification} // Pass setNotification to TicketCard
                             />
                         ))
                     )}
                 </div>
+
+                {/* Notification */}
+                {notification && (
+                    <Notification type={notification.type} message={notification.message} />
+                )}
             </div>
         </Dashboard>
     );

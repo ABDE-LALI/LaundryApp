@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ServiceArticleController;
@@ -61,6 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings/addService', function () {
         return Inertia::render('Settings/AddService');
     })->name('settings.addService');
+    Route::get('/logout', [RegisteredUserController::class, 'logout'])->name('logout');
 });
 
 Route::middleware('auth')->group(function () {

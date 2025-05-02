@@ -19,7 +19,8 @@ export default function EditArticleForm(props) {
     const [keyboardInput, setKeyboardInput] = useState(null);
     const [showKeyboard, setShowKeyboard] = useState(false);
     const [keyboardLayout, setKeyboardLayout] = useState('alphanumeric');
-    const [showConfirm, setShowConfirm] = useState(false); // New state for confirmation dialog
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [notification, setNotification] = useState(null);
     const keyboardRef = useRef(null);
 
     useEffect(() => {
@@ -41,7 +42,7 @@ export default function EditArticleForm(props) {
 
     const onKeyPress = (button) => {
         if (button === '{enter}') {
-            setShowConfirm(true); // Show confirmation instead of submitting directly
+            setShowConfirm(true);
         }
     };
 
@@ -56,6 +57,8 @@ export default function EditArticleForm(props) {
     };
 
     const handleImageChange = (e) => {
+        setShowKeyboard(false);
+        setKeyboardInput(null);
         const file = e.target.files[0];
         if (file) {
             setImage(file);
@@ -65,7 +68,8 @@ export default function EditArticleForm(props) {
 
     const handleSubmit = () => {
         if (!formData.name || !formData.gender) {
-            alert('Please fill in all required fields (name and gender).');
+            setNotification({ type: "error", message: "Veuillez remplir tous les champs requis (nom et genre)." });
+            setTimeout(() => setNotification(null), 3000);
             return;
         }
 
@@ -79,7 +83,14 @@ export default function EditArticleForm(props) {
 
         router.post(route('settings.updateArticle'), formPayload, {
             onSuccess: () => {
-                props.setshowmodifyForm(false);
+                // Explicit success notification
+                setNotification({ type: "success", message: "Article mis à jour avec succès !" });
+                setTimeout(() => {
+                    setNotification(null);
+                    props.setshowmodifyForm(false); // Close form after notification
+                }, 3000); // Keep notification visible for 3 seconds before closing
+
+                // Reset form state
                 setFormData({
                     name: '',
                     description: '',
@@ -93,20 +104,22 @@ export default function EditArticleForm(props) {
                 setCurrentImage('');
                 setShowKeyboard(false);
                 setKeyboardInput(null);
-                alert('Article updated successfully!');
             },
             onError: (errors) => {
                 console.error(errors);
-                alert('Error updating article: ' + (Object.values(errors).join(', ') || 'Unknown error'));
+                setNotification({
+                    type: "error",
+                    message: "Erreur lors de la mise à jour de l'article : " + (Object.values(errors).join(', ') || "Erreur inconnue")
+                });
+                setTimeout(() => setNotification(null), 3000);
             },
         });
     };
 
-    // Confirmation Dialog Component
     const ConfirmationDialog = () => (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-60">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                <p className="text-gray-700 mb-4">Are you sure you want to update this article?</p>
+                <p className="text-gray-700 mb-4">Êtes-vous sûr de vouloir mettre à jour cet article ?</p>
                 <div className="flex justify-end gap-4">
                     <button
                         onClick={() => {
@@ -115,15 +128,28 @@ export default function EditArticleForm(props) {
                         }}
                         className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
                     >
-                        Yes
+                        Oui
                     </button>
                     <button
                         onClick={() => setShowConfirm(false)}
                         className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                     >
-                        No
+                        Non
                     </button>
                 </div>
+            </div>
+        </div>
+    );
+
+    const Notification = ({ type, message }) => (
+        <div className="fixed top-4 right-4 z-70">
+            <div
+                className={`p-4 rounded-lg shadow-lg text-white flex items-center gap-2 animate-fade-in ${
+                    type === "success" ? "bg-green-500" : "bg-red-500"
+                }`}
+            >
+                <span className="text-lg">{type === "success" ? "✅" : "❌"}</span>
+                <p className="font-medium">{message}</p>
             </div>
         </div>
     );
@@ -133,18 +159,18 @@ export default function EditArticleForm(props) {
             <div className="bg-white p-8 rounded-xl shadow-2xl h-[80vh] max-h-[90vh] max-w-[90vw] w-full overflow-auto transform transition-all duration-300 scale-100 hover:scale-[1.01]">
                 <div className="flex flex-col md:flex-row gap-8">
                     {/* Left Section */}
-                    <div className="w-full md:w-1/2 space-y-6">
-                        <h3 className="text-2xl font-bold text-gray-900">Edit Article</h3>
+                    <div className="w-full md:w-1/2 space-y-2">
+                        <h3 className="text-2xl font-bold text-gray-900">Modifier l'Article</h3>
                         
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Nom</label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onFocus={() => handleInputClick('name')}
-                                placeholder="Click to edit name"
+                                placeholder="Cliquez pour modifier le nom"
                                 readOnly
-                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                         </div>
 
@@ -154,23 +180,23 @@ export default function EditArticleForm(props) {
                                 type="text"
                                 value={formData.description}
                                 onFocus={() => handleInputClick('description')}
-                                placeholder="Click to edit description"
+                                placeholder="Cliquez pour modifier la description"
                                 readOnly
-                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Genre</label>
                             <select
                                 value={formData.gender}
                                 onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                             >
-                                <option value="">Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="home">Home</option>
+                                <option value="">Sélectionnez le genre</option>
+                                <option value="male">Homme</option>
+                                <option value="female">Femme</option>
+                                <option value="home">Maison</option>
                             </select>
                         </div>
 
@@ -178,15 +204,17 @@ export default function EditArticleForm(props) {
                             {["washPrice", "dryPrice", "ironPrice", "paintPrice"].map((field) => (
                                 <div key={field}>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        {field.replace("Price", " Price")}
+                                        {field === "washPrice" ? "Prix de lavage" : 
+                                         field === "dryPrice" ? "Prix de séchage" : 
+                                         field === "ironPrice" ? "Prix de repassage" : "Prix de peinture"}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData[field]}
                                         onFocus={() => handleInputClick(field)}
-                                        placeholder={`Click to edit ${field.replace("Price", " price")}`}
+                                        placeholder={`Cliquez pour modifier le ${field.replace("Price", " prix")}`}
                                         readOnly
-                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                     />
                                 </div>
                             ))}
@@ -194,32 +222,34 @@ export default function EditArticleForm(props) {
                     </div>
 
                     {/* Right Section */}
-                    <div className="w-full md:w-1/2 space-y-6">
+                    <div className="w-full md:w-1/2 space-y-2">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Article Image</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Image de l'article</label>
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                {currentImage ? (
-                                    <img
-                                        src={currentImage.startsWith('blob:') ? currentImage : `/storage/${currentImage}`}
-                                        alt="Current article"
-                                        className="max-w-full h-48 object-contain mx-auto mb-4 rounded-lg"
-                                    />
-                                ) : (
-                                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
-                                        <span className="text-gray-400">No image selected</span>
-                                    </div>
+                                {!showKeyboard && (
+                                    currentImage ? (
+                                        <img
+                                            src={currentImage.startsWith('blob:') ? currentImage : `/storage/${currentImage}`}
+                                            alt="Current article"
+                                            className="max-w-full h-48 object-contain mx-auto mb-4 rounded-lg"
+                                        />
+                                    ) : (
+                                        <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
+                                            <span className="text-gray-400">Aucune image sélectionnée</span>
+                                        </div>
+                                    )
                                 )}
                                 <input
                                     type="file"
                                     onChange={handleImageChange}
-                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                                     accept="image/*"
                                 />
                             </div>
                         </div>
 
                         {showKeyboard && (
-                            <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
+                            <div className="bg-gray-100 p-4 rounded-lg shadow-inner relative">
                                 <VirtualKeyboard
                                     keyboardRef={keyboardRef}
                                     onChangeAll={onKeyboardChangeAll}
@@ -233,9 +263,9 @@ export default function EditArticleForm(props) {
                                         setShowKeyboard(false);
                                         setKeyboardInput(null);
                                     }}
-                                    className="w-full mt-4 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                                    className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                                 >
-                                    Hide Keyboard
+                                    <span className="text-lg font-bold">×</span>
                                 </button>
                             </div>
                         )}
@@ -243,10 +273,10 @@ export default function EditArticleForm(props) {
                         <div className="flex justify-end gap-4 mt-8">
                             <button
                                 type="submit"
-                                onClick={() => setShowConfirm(true)} // Show confirmation dialog
-                                className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200"
+                                onClick={() => setShowConfirm(true)}
+                                className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all duration-200"
                             >
-                                Update Article
+                                Mettre à jour l'article
                             </button>
                             <button
                                 type="button"
@@ -257,13 +287,14 @@ export default function EditArticleForm(props) {
                                 }}
                                 className="px-6 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-all duration-200"
                             >
-                                Cancel
+                                Annuler
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
             {showConfirm && <ConfirmationDialog />}
+            {notification && <Notification type={notification.type} message={notification.message} />}
         </div>
     );
 }

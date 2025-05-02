@@ -48,4 +48,14 @@ class RegisteredUserController extends Controller
 
         return redirect(route('login', absolute: false));
     }
+
+    public function confirmlogout()
+    {
+        return Inertia::render('Auth/ConfirmLogout');
+    }
+    public function logout()
+    {
+        Auth::logout();
+        return redirect(route('login', absolute: false));
+    }
 }

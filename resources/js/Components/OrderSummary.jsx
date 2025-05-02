@@ -11,13 +11,13 @@ export default function OrderSummary({
     const totalBillPrice = orderItems.reduce((acc, item) => acc + (item.totalPrice || 0), 0);
 
     return (
-        <div className="order-summary bg-white p-6 shadow-md rounded-lg border border-gray-200 mt-3">
+        <div className=" h-[85vh] order-summary bg-white p-6 shadow-md rounded-lg border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Commandes en cours</h3>
             <div className="order-table">
                 <table className="min-w-full border-collapse">
                     <caption className="text-sm text-gray-600 mb-2">Ticket ID: {ticketId}</caption>
                 </table>
-                <div className="overflow-y-auto h-[50vh] max-h-[50vh]"> {/* Wraps only the table */}
+                <div className="overflow-y-scroll max-h-[60vh]"> {/* Wraps only the table */}
                     <table className="min-w-full border-collapse">
                         <thead style={{ position: 'sticky', top: 0 }}>
                             <tr className="bg-gray-100 text-gray-700">
@@ -85,7 +85,7 @@ export default function OrderSummary({
                     <button
                         onClick={() => setOrdersConf(true)}
                         disabled={orderItems.length === 0}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                        className="px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                     >
                         Confirmer
                     </button>

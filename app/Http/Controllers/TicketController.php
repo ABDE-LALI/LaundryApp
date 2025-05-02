@@ -39,7 +39,7 @@ class TicketController extends Controller
     {
         $tickets = Ticket::with(['orders', 'articles', 'services'])
             ->latest()
-            ->take(9)
+            ->take(10)
             ->get();
 
         return response()->json($tickets);
@@ -87,7 +87,7 @@ class TicketController extends Controller
             return response()->json(['message' => 'Ticket not found'], 404);
         }
 
-        $ticket->paid_amount = $request->input('paid_amount');
+        $ticket->paid_amount = $ticket->paid_amount + $request->input('paid_amount');
         $ticket->save();
 
         return response()->json(['message' => 'Paid amount updated successfully', 'ticket' => $ticket]);

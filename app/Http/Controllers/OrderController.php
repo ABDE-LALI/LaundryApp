@@ -17,9 +17,6 @@ class OrderController extends Controller
         $connection = config('database.default'); // 'sqlite' for offline, 'mysql' for online
         // Optionally, check if running in Electron offline mode (custom logic needed)
         // For now, assume dynamic switching isn't implemented yet; adjust based on your setup
-
-        $articles = Article::on($connection)->with('services')->get();
-        $services = Service::on($connection)->get();
         $ticket_id = Ticket::on($connection)->max('id') + 1;
         return Inertia::render('Serve/Create', [
             'articles' => Article::with('services')->get(),

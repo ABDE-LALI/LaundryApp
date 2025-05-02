@@ -4,7 +4,7 @@ export default function Dashboard({ children }) {
     return (
         <div className="dashboard">
             {/* <Loader/> */}
-            <LeftSideBar />
+            <LeftSideBar/>
             {children}
 
         </div>
