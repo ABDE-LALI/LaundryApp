@@ -10,7 +10,6 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function Login({ status }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: 'test@test.com',
         password: '',
     });
 
@@ -65,7 +64,9 @@ export default function Login({ status }) {
     const submit = (e) => {
         e.preventDefault();
         post(route('login'), {
-            onFinish: () => reset('password'),
+            onFinish: () => {
+                reset('password'); // Reset the password field after submission
+            },
         });
     };
 
@@ -108,17 +109,6 @@ export default function Login({ status }) {
                         )}
 
                         <form onSubmit={submit}>
-                            {/* Hidden Email Field */}
-                            <div className="mb-4">
-                                <TextInput
-                                    id="email"
-                                    type="hidden"
-                                    name="email"
-                                    value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
-                                    autoComplete="email"
-                                />
-                            </div>
 
                             {/* Password Field */}
                             <div className="mb-6">

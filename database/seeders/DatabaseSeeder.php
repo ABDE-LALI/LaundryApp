@@ -18,9 +18,13 @@ class DatabaseSeeder extends Seeder
         $this->call(ArticleSeeder::class);
         $this->call(ServiceSeeder::class);
         User::create([
-            'name' => 'Test User',
-            'email' => 'test@test.com',
-            'password' => bcrypt('12341234'),
+            'firstname' => 'Test User',
+            'lastname' => 'last',
+            'is_admin' => true,
+            'phone1' => '0123456789',
+            'phone2' => '0987654321',
+            'password' => '12341234', // Use bcrypt for password hashing
+            'remember_token' => 'hello',
         ]);
         $this->call(ServiceArticleSeeder::class);
     }

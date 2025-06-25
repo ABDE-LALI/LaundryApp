@@ -3,11 +3,12 @@ import Dashboard from "../Dashboard";
 import { useState } from "react";
 import EditArticleForm from "@/Components/Editarticleform";
 import AddArticleForm from "@/Components/AddArticleForm";
-
+import AddEmployeForm from "@/Components/AddEmployeForm";
 export default function Settings() {
-    const { articles } = usePage().props;
+    const { articles, user } = usePage().props;
     const [showModifyForm, setShowModifyForm] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
+    const [showAddEmpForm, setShowAddEmpForm] = useState(false);
     const [modifyArticle, setModifyArticle] = useState(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteArticleId, setDeleteArticleId] = useState(null);
@@ -69,9 +70,8 @@ export default function Settings() {
     const Notification = ({ type, message }) => (
         <div className="fixed top-4 right-4 z-70">
             <div
-                className={`p-4 rounded-lg shadow-lg text-white flex items-center gap-2 animate-fade-in ${
-                    type === "success" ? "bg-green-500" : "bg-red-500"
-                }`}
+                className={`p-4 rounded-lg shadow-lg text-white flex items-center gap-2 animate-fade-in ${type === "success" ? "bg-green-500" : "bg-red-500"
+                    }`}
             >
                 <span className="text-lg">{type === "success" ? "✅" : "❌"}</span>
                 <p className="font-medium">{message}</p>
@@ -85,13 +85,26 @@ export default function Settings() {
 
             <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-3xl font-bold text-gray-800">Gestion des Articles</h2>
-                    <button
-                        onClick={() => setShowAddForm(true)}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
-                    >
-                        Ajouter un Article
-                    </button>
+                    <h2 className="text-3xl font-bold text-gray-800">Settings</h2>
+                    <div>
+
+                        {
+                            user.is_admin === 1 && (<button
+                                onClick={() => setShowAddEmpForm(true)}
+                                className="px-4 py-2 mr-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
+                            >
+                                Ajouter un Employer
+                            </button>)}
+
+                        <button
+                            onClick={() => setShowAddForm(true)}
+                            className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
+                        >
+                            Ajouter un Article
+                        </button>
+
+
+                    </div>
                 </div>
 
                 {/* Scrollable articles container */}
@@ -140,6 +153,11 @@ export default function Settings() {
                 {showAddForm && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                         <AddArticleForm setshowaddForm={setShowAddForm} />
+                    </div>
+                )}
+                {showAddEmpForm && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <AddEmployeForm setshowaddForm={setShowAddEmpForm} />
                     </div>
                 )}
 

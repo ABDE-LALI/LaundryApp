@@ -9,11 +9,12 @@ use Inertia\Inertia;
 
 class ArticleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $articles = Article::all();
         return Inertia::render('Settings/Settings', [
             'articles' => $articles,
+            'user' => $request->user()
         ]);
     }
     public function store(Request $request)

@@ -28,34 +28,23 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-        //     'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        // ]);
+        $validated = $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'phone1' => 'required|string|max:13|min:10|regex:/^[0-9]{10,13}$/|unique:users,phone1',
+            'password' => 'required|string|min:8',
+        ]);
 
-        // $user = User::create([
-        //     'name' => $request->name,
-        //     'email' => $request->email,
-        //     'password' => Hash::make($request->password),
-        // ]);
+        $user = User::create([
+            'firstname' => $validated['firstname'],
+            'lastname' => $validated['lastname'],
+            'phone1' => $validated['phone1'],
+            'password' => Hash::make($validated['password']), // 🔐 Hash the password!
+        ]);
 
-        // event(new Registered($user));
-
-        // Auth::login($user);
-
-        return redirect(route('login', absolute: false));
-    }
-
-    public function confirmlogout()
-    {
-        return Inertia::render('Auth/ConfirmLogout');
-    }
-    public function logout()
-    {
-        Auth::logout();
-        return redirect(route('login', absolute: false));
+        event(new Registered($user));
+        return redirect()->route('settings'); // or any page you want after login
     }
 }

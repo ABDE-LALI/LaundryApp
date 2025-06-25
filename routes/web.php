@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Settings/AddService');
     })->name('settings.addService');
     Route::get('/logout', [RegisteredUserController::class, 'logout'])->name('logout');
+    Route::post('/settings/addEmployee', [RegisteredUserController::class, 'store'])->name('settings.storeEmploye')->middleware('isAdmin');
 });
 
 Route::middleware('auth')->group(function () {
