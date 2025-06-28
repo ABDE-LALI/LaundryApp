@@ -4,8 +4,9 @@ import { useState } from "react";
 import EditArticleForm from "@/Components/Editarticleform";
 import AddArticleForm from "@/Components/AddArticleForm";
 import AddEmployeForm from "@/Components/AddEmployeForm";
+import EditArticlesGrid from "./EditArticlesGrid";
 export default function Settings() {
-    const { articles, user } = usePage().props;
+    const { articles, user, users } = usePage().props;
     const [showModifyForm, setShowModifyForm] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showAddEmpForm, setShowAddEmpForm] = useState(false);
@@ -13,12 +14,15 @@ export default function Settings() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteArticleId, setDeleteArticleId] = useState(null);
     const [notification, setNotification] = useState(null);
-
+    const [ShowModifyUserForm, setShowModifyUserForm] = useState(null);
     const handleDeleteArticle = (id) => {
         setDeleteArticleId(id);
         setShowConfirm(true);
     };
-
+    const handleDeleteUser = (id) => {
+        setDeleteUserId(id);
+        setShowConfirm(true);
+    };
     const confirmDelete = () => {
         router.delete(route("settings.deleteArticle", deleteArticleId), {
             onSuccess: () => {
@@ -108,40 +112,8 @@ export default function Settings() {
                 </div>
 
                 {/* Scrollable articles container */}
-                <div className="max-h-[87vh] overflow-y-auto">
-                    <div className="grid md:grid-cols-5 sm:grid-cols-2 gap-6">
-                        {articles?.map((article) => (
-                            <div key={article.id} className="bg-white p-4 shadow-md rounded-lg border border-gray-200">
-                                <div className="flex flex-col items-center">
-                                    <img
-                                        src={`/storage/${article.image}`}
-                                        alt={article.name}
-                                        className="object-cover rounded-md mb-3"
-                                    />
-                                    <span className="text-lg font-semibold text-gray-700">{article.name}</span>
-                                </div>
-
-                                <div className="mt-4 flex justify-between">
-                                    <button
-                                        onClick={() => {
-                                            setShowModifyForm(true);
-                                            setModifyArticle(article);
-                                        }}
-                                        className="px-3 py-1 text-sm bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-                                    >
-                                        Modify
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteArticle(article.id)}
-                                        className="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <EditArticlesGrid hahandleDeleteArticle={handleDeleteArticle} articles={articles} setShowModifyForm={setShowModifyForm} setModifyArticle={setModifyArticle} />
+                <EditEmployeGrid users={users} setShowModifyUserForm={setShowModifyUserForm} setModifyUser={setModifyUser} />
 
                 {/* Forms for Editing and Adding Articles */}
                 {showModifyForm && (

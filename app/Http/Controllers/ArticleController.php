@@ -12,10 +12,20 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         $articles = Article::all();
-        return Inertia::render('Settings/Settings', [
-            'articles' => $articles,
-            'user' => $request->user()
-        ]);
+        if ($request->user()->is_admin){
+            $data = [
+                'articles' => $articles,
+                'user' => $request->user(),
+                // 'users' => $request->user()->allUsers(),
+            ];
+        }else {
+            $data = [
+                'articles' => $articles,
+                'user' => $request->user(),
+                'users' => []
+            ];
+        }
+        return Inertia::render('Settings/Settings', $data);
     }
     public function store(Request $request)
     {
