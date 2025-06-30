@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ArticleService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,11 +13,12 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         $articles = Article::all();
+        $users = DB::table('users')->where('is_admin', 0)->get();
         if ($request->user()->is_admin){
             $data = [
                 'articles' => $articles,
                 'user' => $request->user(),
-                // 'users' => $request->user()->allUsers(),
+                'users' => $users
             ];
         }else {
             $data = [

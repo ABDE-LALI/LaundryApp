@@ -5,12 +5,16 @@ import EditArticleForm from "@/Components/Editarticleform";
 import AddArticleForm from "@/Components/AddArticleForm";
 import AddEmployeForm from "@/Components/AddEmployeForm";
 import EditArticlesGrid from "./EditArticlesGrid";
+import EditEmployeGrid from './EditEmployeGrid';
 export default function Settings() {
+    const [showArticles, setShowArticles] = useState(true);
+    const [showEmploes, setShowEmploes] = useState(false);
     const { articles, user, users } = usePage().props;
     const [showModifyForm, setShowModifyForm] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [showAddEmpForm, setShowAddEmpForm] = useState(false);
     const [modifyArticle, setModifyArticle] = useState(null);
+    const [modifyUser, setModifyUser] = useState(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteArticleId, setDeleteArticleId] = useState(null);
     const [notification, setNotification] = useState(null);
@@ -88,23 +92,34 @@ export default function Settings() {
             <Head title="Settings" />
 
             <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
+                <div className="justify-between items-center mb-6">
                     <h2 className="text-3xl font-bold text-gray-800">Settings</h2>
-                    <div>
-
-                        {
-                            user.is_admin === 1 && (<button
-                                onClick={() => setShowAddEmpForm(true)}
-                                className="px-4 py-2 mr-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
-                            >
-                                Ajouter un Employer
-                            </button>)}
+                    <div className="flex flex-1 ">
+                        <button
+                            onClick={() => setShowAddEmpForm(true)}
+                            className="px-4 py-2 mr-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
+                        >
+                            Ajouter un Employer
+                        </button>
 
                         <button
                             onClick={() => setShowAddForm(true)}
-                            className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
+                            className="px-4 py-2 mr-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600"
                         >
                             Ajouter un Article
+                        </button>
+                        <button
+                            onClick={() => {setShowEmploes(true); setShowArticles(false)}}
+                            className={`px-4 py-2 mr-2 bg-green-500 text-white rounded-lg shadow-md ${showEmploes && "bg-gray-400"}`}
+                        >
+                            Afficher les Employes
+                        </button>
+
+                        <button
+                            onClick={() => {setShowArticles(true); setShowEmploes(false)}}
+                            className={`px-4 py-2 bg-green-500 text-white rounded-lg shadow-md ${showArticles && "bg-gray-400"}`}
+                        >
+                            Afficher les Articles
                         </button>
 
 
@@ -112,8 +127,8 @@ export default function Settings() {
                 </div>
 
                 {/* Scrollable articles container */}
-                <EditArticlesGrid hahandleDeleteArticle={handleDeleteArticle} articles={articles} setShowModifyForm={setShowModifyForm} setModifyArticle={setModifyArticle} />
-                <EditEmployeGrid users={users} setShowModifyUserForm={setShowModifyUserForm} setModifyUser={setModifyUser} />
+                {showArticles && <EditArticlesGrid hahandleDeleteArticle={handleDeleteArticle} articles={articles} setShowModifyForm={setShowModifyForm} setModifyArticle={setModifyArticle} />}
+                {showEmploes && <EditEmployeGrid handleDeleteUser={handleDeleteUser} users={users} setShowModifyUserForm={setShowModifyUserForm} setModifyUser={setModifyUser} />}
 
                 {/* Forms for Editing and Adding Articles */}
                 {showModifyForm && (

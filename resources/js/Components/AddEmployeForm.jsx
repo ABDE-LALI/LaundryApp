@@ -7,29 +7,18 @@ export default function AddEmployeForm(props) {
     const [formData, setFormData] = useState({
         firstname: '',
         lastname: '',
-        phone1:'',
-        phone2:'',
+        phone1: '',
+        phone2: '',
         password: '',
         passwordconf: '',
     });
 
-    const [image, setImage] = useState(null);
-    const [previewImage, setPreviewImage] = useState(null);
     const [keyboardInput, setKeyboardInput] = useState(null);
-    const [showKeyboard, setShowKeyboard] = useState(false);
     const [keyboardLayout, setKeyboardLayout] = useState('alphanumeric');
     const [showConfirm, setShowConfirm] = useState(false);
     const [notification, setNotification] = useState(null);
     const keyboardRef = useRef(null);
 
-    // Cleanup preview URL when component unmounts or image changes
-    useEffect(() => {
-        return () => {
-            if (previewImage) {
-                URL.revokeObjectURL(previewImage);
-            }
-        };
-    }, [previewImage]);
 
     const onKeyboardChangeAll = useCallback((inputs) => {
         if (keyboardInput) {
@@ -48,7 +37,6 @@ export default function AddEmployeForm(props) {
 
     const handleFocus = (field) => {
         setKeyboardInput(field);
-        setShowKeyboard(true);
         const isphone = ["phone1", "phone2"].includes(field);
         setKeyboardLayout(isphone ? "numeric" : "alphanumeric");
         if (keyboardRef.current) {
@@ -56,13 +44,6 @@ export default function AddEmployeForm(props) {
         }
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImage(file);
-            setPreviewImage(URL.createObjectURL(file));
-        }
-    };
 
     const handleSubmit = () => {
         if (!formData.firstname || !formData.lastname || !formData.phone1 || !formData.phone2 || !formData.password || !formData.passwordconf) {
@@ -73,14 +54,10 @@ export default function AddEmployeForm(props) {
 
         const formPayload = new FormData();
         Object.keys(formData).forEach((key) => formPayload.append(key, formData[key]));
-        if (image) formPayload.append('image', image);
 
         router.post(route('settings.storeEmploye'), formPayload, {
             onSuccess: () => {
-                setFormData({ firstname: '', lastname: '', phone1: '', phone2: '', password: '', passwordconf: ''});
-                setImage(null);
-                setPreviewImage(null);
-                setShowKeyboard(false);
+                setFormData({ firstname: '', lastname: '', phone1: '', phone2: '', password: '', passwordconf: '' });
                 setKeyboardInput(null);
                 props.setshowaddForm(false);
                 setNotification({ type: "success", message: "Employe added successfully!" });
@@ -125,9 +102,8 @@ export default function AddEmployeForm(props) {
     const Notification = ({ type, message }) => (
         <div className="fixed top-4 right-4 z-70">
             <div
-                className={`p-4 rounded-lg shadow-lg text-white flex items-center gap-2 animate-fade-in ${
-                    type === "success" ? "bg-green-500" : "bg-red-500"
-                }`}
+                className={`p-4 rounded-lg shadow-lg text-white flex items-center gap-2 animate-fade-in ${type === "success" ? "bg-green-500" : "bg-red-500"
+                    }`}
             >
                 <span className="text-lg">{type === "success" ? "✅" : "❌"}</span>
                 <p className="font-medium">{message}</p>
@@ -142,7 +118,7 @@ export default function AddEmployeForm(props) {
                     {/* Left Section */}
                     <div className="w-full md:w-2/3 space-y-2">
                         <h3 className="text-2xl font-bold text-gray-900">Add New Employe</h3>
-                        
+
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">FirstName</label>
                             <input
@@ -212,58 +188,24 @@ export default function AddEmployeForm(props) {
                             />
                         </div>
 
-                        
+
                     </div>
 
                     {/* Right Section */}
                     <div className="w-full md:w-1/3 space-y-2">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Employe Image</label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                {!showKeyboard && (
-                                    previewImage ? (
-                                        <img
-                                            src={previewImage}
-                                            alt="Selected article"
-                                            className="max-w-full h-48 object-contain mx-auto mb-4 rounded-lg"
-                                        />
-                                    ) : (
-                                        <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
-                                            <span className="text-gray-400">No image selected</span>
-                                        </div>
-                                    )
-                                )}
-                                <input
-                                    type="file"
-                                    onChange={handleImageChange}
-                                    onClick={()=> setShowKeyboard(false)}
-                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                    accept="image/*"
-                                />
-                            </div>
+
+
+                        <div className="bg-gray-100 p-4 rounded-lg shadow-inner relative">
+                            <VirtualKeyboard
+                                keyboardRef={keyboardRef}
+                                onChangeAll={onKeyboardChangeAll}
+                                onKeyPress={onKeyPress}
+                                initialLayout={keyboardLayout}
+                                inputName={keyboardInput}
+                            />
+                            
                         </div>
 
-                        {showKeyboard && (
-                            <div className="bg-gray-100 p-4 rounded-lg shadow-inner relative">
-                                <VirtualKeyboard
-                                    keyboardRef={keyboardRef}
-                                    onChangeAll={onKeyboardChangeAll}
-                                    onKeyPress={onKeyPress}
-                                    initialLayout={keyboardLayout}
-                                    inputName={keyboardInput}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setShowKeyboard(false);
-                                        setKeyboardInput(null);
-                                    }}
-                                    className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                                >
-                                    <span className="text-lg font-bold">×</span>
-                                </button>
-                            </div>
-                        )}
 
                         <div className="flex justify-end gap-4 mt-8">
                             <button

@@ -54,7 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/serve/statistics-data', [OrderController::class, 'getStatisticsJson'])->name('serve.statistics.data');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'isAdmin'])->group(function () {
     Route::get('/settings', [ArticleController::class, 'index'])->name('settings');
     Route::post('/settings/storeArticle', [ArticleController::class, 'store'])->name('settings.storeArticle');
     Route::get('/settings/editArticle/{article}', [ArticleController::class, 'edit'])->name('settings.editArticle');
@@ -64,7 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Settings/AddService');
     })->name('settings.addService');
     Route::get('/logout', [RegisteredUserController::class, 'logout'])->name('logout');
-    Route::post('/settings/addEmployee', [RegisteredUserController::class, 'store'])->name('settings.storeEmploye')->middleware('isAdmin');
+    Route::post('/settings/addEmployee', [RegisteredUserController::class, 'store'])->name('settings.storeEmploye');
 });
 
 Route::middleware('auth')->group(function () {
